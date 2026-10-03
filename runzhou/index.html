@@ -1,0 +1,2843 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>润州小茶童 · 互动故事</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+    <style>
+        /* ===== 水波纹提示特效 ===== */
+        .question-item {
+            position: relative;
+            border-radius: 16px;
+            padding: 0.6rem 1rem;
+            transition: background 0.3s, color 0.2s;
+            animation: water-ripple 2.8s ease-in-out infinite;
+            z-index: 1;
+        }
+        .question-item:nth-child(1) { animation-delay: 0s; }
+        .question-item:nth-child(2) { animation-delay: 0.9s; }
+        .question-item:nth-child(3) { animation-delay: 1.8s; }
+
+        @keyframes water-ripple {
+            0% {
+                background-color: rgba(127, 159, 122, 0);
+                box-shadow: 0 0 0 0 rgba(127, 159, 122, 0.35), inset 0 0 0 0 rgba(127, 159, 122, 0);
+            }
+            50% {
+                background-color: rgba(127, 159, 122, 0.18);
+                box-shadow: 0 0 0 20px rgba(127, 159, 122, 0), inset 0 0 20px 4px rgba(127, 159, 122, 0.08);
+            }
+            100% {
+                background-color: rgba(127, 159, 122, 0);
+                box-shadow: 0 0 0 0 rgba(127, 159, 122, 0), inset 0 0 0 0 rgba(127, 159, 122, 0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .question-item {
+                padding: 0.5rem 0.8rem;
+                border-radius: 14px;
+            }
+            @keyframes water-ripple {
+                0% { box-shadow: 0 0 0 0 rgba(127, 159, 122, 0.35); }
+                50% { box-shadow: 0 0 0 14px rgba(127, 159, 122, 0); background-color: rgba(127, 159, 122, 0.2); }
+            }
+        }
+
+        /* ===== 全局重置 ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html,
+        body {
+            height: 100%;
+            background-color: #e6ede0;
+            background-image: radial-gradient(circle at 20% 30%, #eaf3e5 0%, #d4dcc8 100%);
+            font-family: "LXGW WenKai", "霞鹜文楷", "标小篆", "KaiTi", "楷体", serif;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .game-container {
+            max-width: 820px;
+            width: 100%;
+            height: 95vh;
+            background-color: #f6efe3;
+            background-image: linear-gradient(135deg, #f6efe3 0%, #ece1cf 100%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 8px;
+            box-shadow: 0 12px 40px rgba(60, 80, 50, 0.3), 0 0 0 1px #b3c9a8 inset, 0 0 0 3px #8aaa7a inset;
+            padding: 1.5rem 1.5rem 0 1.5rem;
+            position: relative;
+            isolation: isolate;
+            display: flex;
+            flex-direction: column;
+            transition: background-image 0.5s;
+            overflow: hidden;
+        }
+        .mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(246, 239, 227, 0.1);
+            pointer-events: none;
+            z-index: 0;
+            border-radius: inherit;
+        }
+
+        /* ===== 品牌页 ===== */
+        #brandPage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #dce6d0 0%, #c2d3b0 100%);
+            box-shadow: 0 0 0 1px #a3bf94 inset, 0 0 0 3px #7a9a6a inset;
+            display: flex;
+            flex-direction: column;
+            z-index: 400;
+            border-radius: inherit;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            opacity: 1;
+            pointer-events: auto;
+            padding: 1.8rem 2rem 1.8rem 2rem;
+        }
+        #brandPage.fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.98);
+        }
+        .brand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            width: 100%;
+            z-index: 2;
+            margin-bottom: 0.6rem;
+            position: relative;
+        }
+        .brand-logo-area {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+        }
+        .brand-logo-area img {
+            height: 96px;
+            width: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(60, 80, 50, 0.15);
+            background: #f6efe3;
+            padding: 4px;
+            border: 1px solid rgba(163, 198, 160, 0.4);
+            object-fit: contain;
+            display: block;
+        }
+        .brand-title-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3.2rem;
+            font-family: "标小篆", "LXGW WenKai", serif;
+            letter-spacing: 14px;
+            color: #2d3d24;
+            text-shadow: 2px 2px 0 rgba(100, 130, 80, 0.2), 4px 4px 0 rgba(0, 0, 0, 0.04);
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .brand-lang-wrap {
+            flex: 0 0 auto;
+            margin-left: 1rem;
+        }
+        .brand-lang-wrap select {
+            background: rgba(255, 247, 235, 0.7);
+            backdrop-filter: blur(4px);
+            border: 1.5px solid #a3c6a0;
+            border-radius: 30px;
+            padding: 0.3rem 1.4rem 0.3rem 1.6rem;
+            font-family: "LXGW WenKai", "霞鹜文楷", serif;
+            font-size: 0.95rem;
+            color: #2d3d24;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.25s;
+            box-shadow: 0 2px 8px rgba(60, 80, 50, 0.08);
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235e7a56' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            padding-right: 2.6rem;
+            min-width: 100px;
+        }
+        .brand-lang-wrap select:hover {
+            border-color: #7f9f7a;
+            background-color: rgba(255, 247, 235, 0.9);
+            box-shadow: 0 4px 14px rgba(60, 80, 50, 0.15);
+        }
+        .brand-lang-wrap select:focus {
+            border-color: #5e7a56;
+            box-shadow: 0 0 0 3px rgba(127, 159, 122, 0.25);
+        }
+        .brand-lang-wrap select option {
+            background: #f6efe3;
+            color: #2d3d24;
+            padding: 4px 8px;
+        }
+        .brand-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 0.6rem;
+            overflow-y: auto;
+            z-index: 2;
+            width: 100%;
+            max-height: calc(100% - 120px);
+        }
+        .brand-intro {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #3d5a35;
+            opacity: 0.85;
+            max-width: 700px;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 1rem;
+            background: rgba(255, 247, 235, 0.3);
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            border-left: 4px solid #7f9f7a;
+            max-height: none;
+            overflow-y: auto;
+            font-family: "LXGW WenKai", "霞鹜文楷", serif;
+            flex-shrink: 0;
+        }
+        .brand-questions {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2.4rem;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0.5rem 0;
+        }
+        .question-item {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0.6rem 0.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: "LXGW WenKai", "霞鹜文楷", serif;
+            font-size: 1.3rem;
+            color: #2d3d24;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            align-self: flex-start;
+        }
+        .question-item:hover {
+            color: #5e7a56;
+        }
+        .question-item:active {
+            opacity: 0.7;
+        }
+        .question-item .q-emoji {
+            font-size: 1.6rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .question-item:nth-child(2) {
+            align-self: flex-end;
+        }
+        .question-item:nth-child(3) {
+            align-self: flex-start;
+        }
+        .brand-footer-area {
+            flex-shrink: 0;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 0.2rem;
+            z-index: 2;
+        }
+        .brand-btn {
+            background: transparent;
+            border: 2px solid #7f9f7a;
+            color: #2d3d24;
+            font-size: 1.5rem;
+            font-family: inherit;
+            padding: 0.5rem 2.8rem;
+            border-radius: 4rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 3px 3px 0 #7f9f7a;
+            letter-spacing: 2px;
+            background: rgba(255, 247, 235, 0.35);
+            backdrop-filter: blur(2px);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .brand-btn .arrow-icon {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            font-size: 1.6rem;
+            line-height: 1;
+        }
+        .brand-btn:hover {
+            background: #7f9f7a;
+            color: #f6efe3;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #7f9f7a;
+        }
+        .brand-btn:hover .arrow-icon {
+            transform: translateX(6px);
+        }
+        .brand-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #7f9f7a;
+        }
+
+        /* ===== 问题详情浮窗 ===== */
+        #questionPopupOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(40, 50, 30, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 500;
+            pointer-events: auto;
+            backdrop-filter: blur(2px);
+        }
+        #questionPopupOverlay.active {
+            display: flex;
+        }
+        .question-popup-card {
+            background: #5c5c5c;
+            color: #ffffff;
+            border-left: 8px solid #888;
+            border-radius: 0 16px 16px 0;
+            padding: 1.8rem 2.2rem;
+            max-width: 92%;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            font-size: 0.95rem;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+            font-family: "霞鹜文楷", "KaiTi", serif;
+            border: 1px solid #666;
+            line-height: 1.8;
+            margin-top: 20px;
+            pointer-events: auto;
+            transform-origin: top center;
+        }
+        .question-popup-card h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 0.6rem;
+            border-bottom: 2px dashed #666;
+            padding-bottom: 0.4rem;
+            font-family: "标小篆", "LXGW WenKai", serif;
+        }
+        .question-popup-card .close-icon {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 1.6rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .question-popup-card .close-icon:hover {
+            color: #ffffff;
+            transform: scale(1.2);
+        }
+        .question-popup-card,
+        .question-popup-card h3,
+        .question-popup-card div,
+        .question-popup-card p,
+        .question-popup-card span,
+        .question-popup-card i,
+        .question-popup-card b,
+        .question-popup-card strong {
+            color: #ffffff;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 前置表单 ===== */
+        #preGameForm {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(60, 70, 50, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 350;
+            padding: 1.5rem;
+            border-radius: inherit;
+        }
+        #preGameForm.active {
+            display: flex;
+        }
+        .form-card {
+            background: #f5f7ed;
+            padding: 2rem 2.2rem;
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            color: #2d3d24;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+            border: 1px solid #b3c9a8;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .form-card h2 {
+            text-align: center;
+            font-family: "标小篆", "LXGW WenKai", serif;
+            letter-spacing: 4px;
+            border-bottom: 2px solid #b3c9a8;
+            padding-bottom: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-card label {
+            display: block;
+            margin: 0.8rem 0 0.3rem;
+            font-weight: bold;
+        }
+        .form-card select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #a3c6a0;
+            border-radius: 8px;
+            background: #fafff5;
+            font-family: inherit;
+            font-size: 1rem;
+            color: #2d3d24;
+        }
+        .form-card .btn-primary {
+            background: #7f9f7a;
+            color: #f6efe3;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            font-family: inherit;
+            transition: background 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-card .btn-primary:hover {
+            background: #5e7a56;
+        }
+        .form-card .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .form-card .privacy-note {
+            font-size: 0.8rem;
+            color: #6a8f63;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .consent-area {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            margin: 1rem 0 0.2rem;
+            font-size: 0.95rem;
+        }
+        .consent-area input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            margin-top: 0.1rem;
+            accent-color: #7f9f7a;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .consent-area label {
+            font-weight: normal;
+            margin: 0;
+            cursor: pointer;
+        }
+        .consent-area .info-link {
+            color: #5e7a56;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .consent-area .info-link:hover {
+            color: #3d5a35;
+        }
+
+        /* ===== 游戏内样式 ===== */
+        .top-section {
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 0.3rem;
+        }
+        h1 {
+            text-align: left;
+            font-size: 2rem;
+            font-weight: normal;
+            letter-spacing: 6px;
+            color: #3d5a35;
+            margin-left: 1.2rem;
+            margin-bottom: 0.1rem;
+            text-shadow: 1px 1px 0 #e4edd9;
+            font-family: "标小篆", "LXGW WenKai", serif;
+            display: inline-block;
+            border-bottom: 2px solid #a3c6a0;
+            padding-bottom: 0.1rem;
+        }
+        .chapter-tag {
+            font-size: 1rem;
+            color: #6a8f63;
+            margin-left: 1.2rem;
+            margin-top: -0.2rem;
+            margin-bottom: 0.3rem;
+            font-style: italic;
+            letter-spacing: 3px;
+        }
+        .mid-section {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            z-index: 2;
+            margin: 0.3rem 0 0.8rem;
+            padding: 0 0.8rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .options-area {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            width: 100%;
+        }
+        .option-btn {
+            background: #f1f5e8;
+            border: 1px solid #a3c6a0;
+            color: #2d3d24;
+            font-size: 1.1rem;
+            font-family: "霞鹜文楷", "KaiTi", serif;
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.15s;
+            text-align: left;
+            box-shadow: 3px 3px 0 #a3c6a0;
+            width: 100%;
+        }
+        .option-btn:hover {
+            background: #e3f0da;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #a3c6a0;
+        }
+        .option-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #a3c6a0;
+        }
+        .bottom-dialog {
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+            background-color: rgba(248, 245, 235, 0.92);
+            border: 1px solid #a3c6a0;
+            border-radius: 24px 24px 0 0;
+            padding: 0.8rem 1.5rem 0.4rem 1.5rem;
+            margin-top: 0.3rem;
+            box-shadow: 0 -6px 16px rgba(70, 90, 60, 0.08);
+            backdrop-filter: blur(2px);
+            max-height: 35vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .story-area {
+            background: transparent;
+            border: none;
+            padding: 0;
+            line-height: 1.9;
+            font-size: 1.1rem;
+            color: #2d2a22;
+            white-space: normal;
+            word-break: break-word;
+            font-family: "霞鹜文楷", "KaiTi", "楷体", serif;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 70px;
+            max-height: 180px;
+            margin-bottom: 0.3rem;
+            scrollbar-width: thin;
+            scrollbar-color: #b3c9a8 #f1f5e8;
+        }
+        .story-area p {
+            text-indent: 2em;
+            margin: 0.4em 0;
+            white-space: pre-wrap;
+        }
+        .continue-btn {
+            align-self: flex-end;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            margin-top: 0.1rem;
+            font-size: 2.4rem;
+            line-height: 1;
+            color: #6a8f63;
+            background: transparent;
+            border: none;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            transition: 0.2s;
+        }
+        .continue-btn:hover {
+            color: #3d6b3a;
+            transform: scale(1.15);
+        }
+        .continue-btn:active {
+            transform: scale(0.95);
+        }
+        .continue-btn.hidden {
+            display: none;
+        }
+        .popup-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(40, 50, 30, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            pointer-events: auto;
+            border-radius: inherit;
+        }
+        .popup-overlay.active {
+            display: flex;
+        }
+        .popup-card {
+            background: #f9f2e3;
+            border-left: 8px solid #7f9f7a;
+            border-radius: 0 16px 16px 0;
+            padding: 1.5rem 2rem;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            font-size: 1rem;
+            color: #2d3d24;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+            font-family: "霞鹜文楷", "KaiTi", serif;
+            z-index: 101;
+            margin: 1.5rem;
+            border: 1px solid #b3c9a8;
+        }
+        .popup-card h3 {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #5e7a56;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px dashed #b3c9a8;
+            padding-bottom: 0.3rem;
+            font-family: "标小篆", "LXGW WenKai", serif;
+        }
+        .popup-card .close-icon {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 1.6rem;
+            color: #7f9f7a;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .popup-card .close-icon:hover {
+            color: #4a6a42;
+            transform: scale(1.2);
+        }
+        .footer {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            color: #4d6645;
+            margin-top: 0.2rem;
+            padding: 0.3rem 0.5rem 0.3rem;
+            font-size: 0.9rem;
+            border-top: 1px solid #cadbc0;
+            position: relative;
+            z-index: 2;
+        }
+        .memory-tag {
+            background: #e3f0da;
+            padding: 0.2rem 1rem;
+            border-radius: 20px;
+            border: 1px solid #a3c6a0;
+            font-style: italic;
+        }
+        .bgm-control,
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #a3c6a0;
+            color: #4d6645;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .reset-btn {
+            background: #dce8d0;
+            box-shadow: 2px 2px 0 #a3c6a0;
+        }
+        .reset-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0 0 0 #a3c6a0;
+        }
+        .bgm-control:hover,
+        .reset-btn:hover {
+            background: #c8dbb8;
+        }
+        .character-left,
+        .character-right {
+            position: absolute;
+            width: 180px;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            pointer-events: none;
+        }
+        .character-left {
+            left: 10px;
+        }
+        .character-right {
+            right: 10px;
+        }
+        .character-left img,
+        .character-right img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15)) brightness(1.05);
+            display: block;
+            border-radius: 8px;
+            background: transparent;
+            pointer-events: none;
+        }
+        .char-name {
+            position: absolute;
+            bottom: 0;
+            background: rgba(60, 50, 40, 0.7);
+            color: #f6efe3;
+            font-size: 0.9rem;
+            padding: 0.2rem 1.2rem;
+            border-radius: 30px;
+            border: 1px solid #a3c6a0;
+            white-space: nowrap;
+            font-family: "霞鹜文楷", "KaiTi", serif;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(2px);
+            pointer-events: none;
+        }
+        .character-left .char-name {
+            left: 100%;
+            margin-left: 6px;
+        }
+        .character-right .char-name {
+            right: 100%;
+            margin-right: 6px;
+        }
+
+        /* ===== 卷轴 ===== */
+        #scrollOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(30, 40, 25, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 250;
+            border-radius: inherit;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        #scrollOverlay.active {
+            display: flex;
+        }
+        .scroll-panel {
+            background: #f5f7ed;
+            padding: 2.5rem 2rem 1.8rem 2rem;
+            border: 6px solid #b3c9a8;
+            border-radius: 16px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+            max-width: 92%;
+            max-height: 85%;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeIn 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .scroll-poem {
+            font-size: 1.9rem;
+            line-height: 2.8;
+            padding: 0.5rem 0.8rem;
+            color: #1f2a1a;
+            letter-spacing: 0.2em;
+            font-family: "标小篆", "LXGW WenKai", serif;
+            white-space: pre-line;
+            display: inline-block;
+            text-align: left;
+            background: rgba(255, 247, 235, 0.3);
+            border-radius: 8px;
+            min-height: auto;
+            min-width: 100px;
+        }
+        .scroll-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            color: #5e7a56;
+            font-weight: bold;
+            font-family: "LXGW WenKai", "KaiTi", serif;
+            letter-spacing: 4px;
+        }
+        .scroll-close-btn {
+            margin-top: 1.5rem;
+            background: #7f9f7a;
+            color: #f6efe3;
+            border: none;
+            padding: 0.6rem 2.5rem;
+            border-radius: 40px;
+            font-family: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .scroll-close-btn:hover {
+            background: #5e7a56;
+            transform: scale(1.02);
+        }
+        .scroll-close-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* ===== 尾声 ===== */
+        #endingScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(40, 50, 35, 0.65);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 280;
+            border-radius: inherit;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        #endingScreen.active {
+            display: flex;
+        }
+        .ending-panel {
+            background: #f5f7ed;
+            padding: 2.8rem 2.8rem 2.2rem 2.8rem;
+            border: 4px solid #b3c9a8;
+            border-radius: 20px;
+            box-shadow: 0 20px 56px rgba(0, 0, 0, 0.7);
+            max-width: 92%;
+            max-height: 88%;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeIn 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: #2d3d24;
+            font-family: "霞鹜文楷", "KaiTi", serif;
+        }
+        .ending-panel .ending-title {
+            font-size: 1.8rem;
+            font-family: "标小篆", "LXGW WenKai", serif;
+            letter-spacing: 6px;
+            color: #5e7a56;
+            border-bottom: 2px dashed #b3c9a8;
+            padding-bottom: 0.6rem;
+            margin-bottom: 1.4rem;
+            width: 100%;
+        }
+        .ending-panel .ending-body {
+            font-size: 1.2rem;
+            line-height: 2.2;
+            white-space: pre-wrap;
+            text-align: left;
+            max-width: 640px;
+            width: 100%;
+            padding: 0.4rem 0;
+            color: #2d3d24;
+        }
+        .ending-panel .ending-body p {
+            text-indent: 2em;
+            margin: 0.6em 0;
+        }
+        .ending-panel .ending-restart-btn {
+            margin-top: 2rem;
+            background: #7f9f7a;
+            color: #f6efe3;
+            border: none;
+            padding: 0.8rem 3.6rem;
+            border-radius: 60px;
+            font-family: inherit;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 6px 16px rgba(60, 80, 50, 0.3);
+            letter-spacing: 4px;
+        }
+        .ending-panel .ending-restart-btn:hover {
+            background: #5e7a56;
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(60, 80, 50, 0.4);
+        }
+        .ending-panel .ending-restart-btn:active {
+            transform: scale(0.96);
+        }
+        .history-screen {
+            display: none !important;
+        }
+        #routeTag {
+            display: none !important;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width:600px) {
+            .game-container {
+                padding: 0.8rem 0.8rem 0;
+                height: 98vh;
+            }
+            #brandPage {
+                padding: 1.2rem 1rem 1.8rem 1rem;
+            }
+            .brand-logo-area img {
+                height: 58px;
+            }
+            .brand-title-center {
+                font-size: 1.6rem;
+                letter-spacing: 4px;
+                white-space: nowrap;
+            }
+            .brand-lang-wrap select {
+                font-size: 0.8rem;
+                padding: 0.2rem 1.6rem 0.2rem 0.6rem;
+                min-width: 60px;
+                background-position: right 0.4rem center;
+                padding-right: 1.8rem;
+            }
+            .brand-intro {
+                font-size: 1.0rem;
+                max-height: 150px;
+                padding: 0.5rem 0.8rem;
+            }
+            .question-item {
+                font-size: 1.1rem;
+                padding: 0.5rem 0.2rem;
+            }
+            .question-item .q-emoji {
+                font-size: 1.4rem;
+            }
+            .brand-btn {
+                font-size: 1.2rem;
+                padding: 0.4rem 1.8rem;
+            }
+            .character-left,
+            .character-right {
+                width: 120px;
+            }
+            h1 {
+                font-size: 1.6rem;
+                margin-left: 0.5rem;
+            }
+            .chapter-tag {
+                margin-left: 0.5rem;
+                font-size: 0.85rem;
+            }
+            .option-btn {
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
+            }
+            .story-area {
+                font-size: 0.95rem;
+                max-height: 140px;
+            }
+            .scroll-poem {
+                font-size: 1.6rem;
+                line-height: 2.4;
+            }
+            .form-card {
+                padding: 1.5rem;
+            }
+            .scroll-panel {
+                padding: 1.5rem 1rem;
+            }
+            .ending-panel {
+                padding: 1.8rem 1.5rem 1.5rem 1.5rem;
+            }
+            .ending-panel .ending-body {
+                font-size: 1rem;
+                line-height: 2;
+            }
+            .ending-panel .ending-restart-btn {
+                font-size: 1.2rem;
+                padding: 0.6rem 2.4rem;
+            }
+            .question-popup-card {
+                max-width: 96%;
+                max-height: 60vh;
+                padding: 1rem 1.2rem;
+                font-size: 0.9rem;
+                margin-top: 10px;
+            }
+            .brand-header {
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: nowrap;
+            }
+            .brand-title-center {
+                position: static;
+                transform: none;
+                flex: 1;
+                text-align: center;
+                font-size: 1.4rem;
+                letter-spacing: 2px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding: 0 0.2rem;
+            }
+            .brand-lang-wrap {
+                flex-shrink: 0;
+                margin-left: 0.3rem;
+            }
+        }
+        @media (max-width:400px) {
+            .brand-title-center {
+                font-size: 1.1rem;
+                letter-spacing: 1px;
+            }
+            .brand-lang-wrap select {
+                font-size: 0.7rem;
+                min-width: 50px;
+                padding: 0.15rem 1.4rem 0.15rem 0.4rem;
+            }
+            .brand-logo-area img {
+                height: 42px;
+            }
+        }
+        @media (min-width:601px) and (max-width:1000px) {
+            .character-left,
+            .character-right {
+                width: 140px;
+            }
+            .story-area {
+                font-size: 1rem;
+            }
+            .scroll-poem {
+                font-size: 2rem;
+            }
+            .ending-panel .ending-body {
+                font-size: 1.1rem;
+            }
+            .brand-title-center {
+                font-size: 2.6rem;
+                letter-spacing: 8px;
+            }
+            .brand-logo-area img {
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <div class="mask"></div>
+
+        <!-- ===== 品牌页 ===== -->
+        <div id="brandPage">
+            <div class="brand-header">
+                <div class="brand-logo-area">
+                    <img alt="沪声沪色" id="brandLogo" onerror="this.style.display='none'" />
+                </div>
+                <div class="brand-title-center">沪声沪色</div>
+            </div>
+            <div class="brand-body">
+                <div class="brand-intro" id="brandIntro"></div>
+                <div class="brand-questions">
+                    <div class="question-item" data-q="1">
+                        <span class="q-emoji">🎭</span>
+                        <span id="q1Label">什么是“互动有声剧”？</span>
+                    </div>
+                    <div class="question-item" data-q="2">
+                        <span class="q-emoji">❔</span>
+                        <span id="q2Label">为什么是互动有声剧？</span>
+                    </div>
+                    <div class="question-item" data-q="3">
+                        <span class="q-emoji">🌍</span>
+                        <span id="q3Label">我们能提供什么？</span>
+                    </div>
+                </div>
+            </div>
+            <div class="brand-footer-area">
+                <button class="brand-btn" id="brandEnterBtn">
+                    <span>进入体验</span>
+                    <span class="arrow-icon">→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== 问题详情浮窗 ===== -->
+        <div id="questionPopupOverlay">
+            <div class="question-popup-card">
+                <span class="close-icon" id="closeQuestionPopup">✕</span>
+                <h3 id="popupTitle"></h3>
+                <div id="popupContent"></div>
+            </div>
+        </div>
+
+        <!-- ===== 前置表单 ===== -->
+        <div id="preGameForm">
+            <div class="form-card">
+                <h2 id="formTitle">📜 游历之前，请留下印记</h2>
+                <label id="ageLabel">你今年几岁？</label>
+                <select id="ageSelect">
+                    <option value="under9" id="ageUnder9">9岁以下</option>
+                    <option value="9-12" selected id="age912">9-12岁</option>
+                </select>
+                <div class="consent-area">
+                    <input type="checkbox" id="consentCheck" />
+                    <label for="consentCheck" id="consentLabel"></label>
+                </div>
+                <button class="btn-primary" id="enterGameBtn">开始旅程 →</button>
+                <div class="privacy-note" id="privacyNote">仅收集匿名统计数据，用于优化游戏体验</div>
+            </div>
+        </div>
+
+        <!-- ===== 音效 ===== -->
+        <audio id="bgWind" loop preload="auto" style="display:none;"></audio>
+
+        <!-- ===== 游戏内浮窗 ===== -->
+        <div class="popup-overlay" id="popupOverlay"></div>
+
+        <!-- ===== 卷轴 ===== -->
+        <div id="scrollOverlay">
+            <div class="scroll-panel">
+                <div class="scroll-title" id="scrollTitle"></div>
+                <div class="scroll-poem" id="scrollPoem"></div>
+                <button class="scroll-close-btn" id="scrollCloseBtn">继续</button>
+            </div>
+        </div>
+
+        <!-- ===== 尾声 ===== -->
+        <div id="endingScreen">
+            <div class="ending-panel">
+                <div class="ending-title" id="endingTitle">· 尾声 · 江声</div>
+                <div class="ending-body" id="endingBody"></div>
+                <button class="ending-restart-btn" id="endingRestartBtn">重头再来</button>
+            </div>
+        </div>
+
+        <!-- ===== 立绘 ===== -->
+        <div class="character-left" id="charLeft" style="display:none;">
+            <img id="charLeftImg" src="" alt="">
+            <span class="char-name" id="charLeftName"></span>
+        </div>
+        <div class="character-right" id="charRight" style="display:none;">
+            <img id="charRightImg" src="" alt="">
+            <span class="char-name" id="charRightName"></span>
+        </div>
+
+        <!-- ===== 顶部 ===== -->
+        <div class="top-section">
+            <h1 id="gameTitle">润州小茶童</h1>
+            <div class="chapter-tag" id="chapterTag">· 序 ·</div>
+        </div>
+
+        <!-- ===== 中部 ===== -->
+        <div class="mid-section">
+            <div class="options-area" id="optionsContainer"></div>
+        </div>
+
+        <!-- ===== 底部 ===== -->
+        <div class="bottom-dialog">
+            <div class="story-area" id="storyText"></div>
+            <div class="continue-btn hidden" id="continueBtn">▶</div>
+        </div>
+
+        <!-- ===== 底部状态 ===== -->
+        <div class="footer">
+            <button class="reset-btn" id="autoPlayBtn">自动播放</button>
+            <span class="memory-tag" id="routeTag" style="display:none;">🌿 润州</span>
+            <span class="bgm-control" id="bgmToggle">🔊 江风</span>
+            <button class="reset-btn" id="resetBtn">重头再来</button>
+        </div>
+        <div class="history-screen" id="historyScreen" style="display:none;"></div>
+    </div>
+
+    <script>
+        // ===== CDN 配置 =====
+        // 本副本为自包含站点：所有图片 / 音频从本地文件夹加载
+        const CDN_BASE = '';
+        const asset = p => (CDN_BASE && !/^https?:/i.test(p)) ? CDN_BASE + p : p;
+
+        // 音频扩展名映射：特殊场景的音频可能使用不同格式
+        const AUDIO_EXT_MAP = { wind: '.m4a' };
+
+        // ===== Supabase 配置 =====
+        const SUPABASE_URL = 'https://qdrxorpgezczohttqafw.supabase.co';
+        const SUPABASE_ANON_KEY =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkcnhvcnBnZXpjem9odHRxYWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwOTg3MzQsImV4cCI6MjA5OTY3NDczNH0.uoAyKg2OW5_TaNTYq3Q6bIUplku6pwWJ_oF7IBWOojY';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ===== 资源预加载 =====
+        // 两种模式：
+        //   1. 切换场景时预加载「下一个场景」的背景 / 立绘 / 音频（优先）
+        //   2. 游戏开始后延迟 3 秒，在浏览器空闲时静默加载剩余全部资源
+        const preloader = {
+            loaded: new Set(),
+            running: false,
+            keepAlive: [],
+            load(url) {
+                if (!url || this.loaded.has(url)) return Promise.resolve();
+                this.loaded.add(url);
+                const isAudio = /\.(mp3|m4a|ogg|wav)$/i.test(url);
+                return new Promise(resolve => {
+                    if (isAudio) {
+                        const a = new Audio();
+                        a.preload = 'auto';
+                        a.oncanplaythrough = () => resolve();
+                        a.onerror = () => resolve();
+                        a.src = url;
+                        this.keepAlive.push(a);
+                    } else {
+                        const img = new Image();
+                        img.onload = () => resolve();
+                        img.onerror = () => resolve();
+                        img.src = url;
+                        this.keepAlive.push(img);
+                    }
+                });
+            },
+            loadScene(sceneId) {
+                const scene = scenes[sceneId];
+                if (!scene) return;
+                if (scene.bg) this.load(asset(scene.bg));
+                const ext = AUDIO_EXT_MAP[sceneId] || '.m4a';
+                this.load(asset(`sounds/${sceneId}${ext}`));
+                if (scene.leftChar) this.load(asset(scene.leftChar.image));
+                if (scene.rightChar) this.load(asset(scene.rightChar.image));
+            },
+            collectAll() {
+                const urls = new Set();
+                urls.add(asset('images/logo.jpg'));
+                urls.add(asset('sounds/wind.m4a'));
+                urls.add(asset('sounds/jinshan.m4a'));
+                Object.values(scenes).forEach(s => {
+                    if (s.bg) urls.add(asset(s.bg));
+                    if (s.leftChar) urls.add(asset(s.leftChar.image));
+                    if (s.rightChar) urls.add(asset(s.rightChar.image));
+                });
+                Object.keys(scenes).forEach(id => {
+                    const ext = AUDIO_EXT_MAP[id] || '.m4a';
+                    urls.add(asset(`sounds/${id}${ext}`));
+                });
+                return [...urls];
+            },
+            startBackground() {
+                if (this.running) return;
+                this.running = true;
+                const all = this.collectAll();
+                let i = 0;
+                const next = () => {
+                    if (i >= all.length) return;
+                    this.load(all[i++]).then(() => {
+                        if ('requestIdleCallback' in window) {
+                            requestIdleCallback(next, { timeout: 1500 });
+                        } else {
+                            setTimeout(next, 200);
+                        }
+                    });
+                };
+                next();
+            }
+        };
+
+        // ===== 全局变量 =====
+        let currentLang = 'zh';
+        let playerAge = '9-12';
+        let sessionStartTime = Date.now();
+        let currentSceneStartTime = Date.now();
+        let sceneVisits = {};
+        let choiceHistory = [];
+        let popupTriggered = false;
+        let isGameFinished = false;
+        let currentSceneId = 's0';
+        let route = 'none';
+        let popupQueue = [];
+        let typewriterTimer = null;
+        let isTyping = false;
+        let currentHtmlContent = '';
+        let currentParagraphTexts = [];
+        let audioInitialized = false;
+        let currentAudio = null;
+        let autoPlayEnabled = false;
+        let scrollTimer = null;
+        let sceneAudioPending = false;
+        // 弹窗场景：弹窗全部关闭后要执行的「当页播放」函数（打字机 + 当页音频）
+        let pendingSceneStart = null;
+
+        let playerChoices = {
+            node0_culture_pre: '',
+            node1_tea_taste: '',
+            node2_life_answer: '',
+            node3_memory: '',
+            node4_culture_post: ''
+        };
+
+        // ===== DOM 引用 =====
+        const gameContainer = document.getElementById('gameContainer');
+        const storyDiv = document.getElementById('storyText');
+        const optionsDiv = document.getElementById('optionsContainer');
+        const continueBtn = document.getElementById('continueBtn');
+        const routeTag = document.getElementById('routeTag');
+        const chapterTag = document.getElementById('chapterTag');
+        const resetBtn = document.getElementById('resetBtn');
+        const bgmToggle = document.getElementById('bgmToggle');
+        const popupOverlay = document.getElementById('popupOverlay');
+        const preGameForm = document.getElementById('preGameForm');
+        const ageSelect = document.getElementById('ageSelect');
+        const enterGameBtn = document.getElementById('enterGameBtn');
+        const autoPlayBtn = document.getElementById('autoPlayBtn');
+        const scrollOverlay = document.getElementById('scrollOverlay');
+        const scrollPoem = document.getElementById('scrollPoem');
+        const scrollTitle = document.getElementById('scrollTitle');
+        const scrollCloseBtn = document.getElementById('scrollCloseBtn');
+        const endingScreen = document.getElementById('endingScreen');
+        const endingTitle = document.getElementById('endingTitle');
+        const endingBody = document.getElementById('endingBody');
+        const endingRestartBtn = document.getElementById('endingRestartBtn');
+        const consentCheck = document.getElementById('consentCheck');
+        const bgWind = document.getElementById('bgWind');
+        let consentInfoLink = null;
+
+        const brandPage = document.getElementById('brandPage');
+        const brandEnterBtn = document.getElementById('brandEnterBtn');
+        const brandIntro = document.getElementById('brandIntro');
+        const q1Label = document.getElementById('q1Label');
+        const q2Label = document.getElementById('q2Label');
+        const q3Label = document.getElementById('q3Label');
+        const questionItems = document.querySelectorAll('.question-item');
+        const questionPopupOverlay = document.getElementById('questionPopupOverlay');
+        const popupTitle = document.getElementById('popupTitle');
+        const popupContent = document.getElementById('popupContent');
+        const closeQuestionPopup = document.getElementById('closeQuestionPopup');
+
+        const formTitle = document.getElementById('formTitle');
+        const ageLabel = document.getElementById('ageLabel');
+        const ageUnder9 = document.getElementById('ageUnder9');
+        const age912 = document.getElementById('age912');
+        const consentLabel = document.getElementById('consentLabel');
+        const privacyNote = document.getElementById('privacyNote');
+
+        // ===== 多语言工具 =====
+        function t(obj) {
+            if (typeof obj === 'string') return obj;
+            if (obj && typeof obj === 'object') {
+                return obj[currentLang] || obj.zh || '';
+            }
+            return '';
+        }
+
+        // ===== 多语言文案 =====
+        const uiTexts = {
+            projectIntro: {
+                zh: `本项目由上海外国语大学"沪声沪色"项目组发起，是一项关于"中华优秀传统文化国内外传播路径"的社会实践研究。借助"互动型有声剧"的概念和嵌入式问卷，调查文化传播的合适路径与预期的传播效果，致力于服务6-12岁年龄段青少年在"玩中学"，了解文化，促进文化交流与传承。所有数据将匿名处理，仅用于学术研究。`,
+                
+            },
+            q1Label: { zh: '什么是“互动有声剧”？',  },
+            q2Label: { zh: '为什么是互动有声剧？',  },
+            q3Label: { zh: '我们能提供什么？',  },
+            q1Content: {
+                zh: `你可以把它理解为一个"由声音和选择构成的叙事体验"。\n\n与传统有声书不同——你不只是听，还要在关键情节节点做出选择。这些选择会影响故事走向，让你从旁观者变成参与者。你不需要看屏幕，不需要操作复杂界面，只需要跟随文字与引导进入场景，然后在需要的时候，凭直觉做出选择。\n\n我们正在为这个故事录制专业配音，目前版本以文字叙事方式呈现，完整声音体验将于近期上线。`,
+                
+            },
+            q2Content: {
+                zh: `传统文化和历史离你很遥远，但通过声音和选择，文化理解不是知识点堆砌，而是对一个世界中的人如何生活、如何思考、如何面对困境产生感知。\n\n互动叙事提供了一种"低门槛的参与方式"：你不需要事先了解中国历史，不需要学习中文，不需要做任何准备。你只需要进入场景，倾听人物，做出选择。你的选择本身，就是一种文化回应。我们希望了解：在不同文化背景下成长的青少年，会如何理解苏轼的追问？`,
+                
+            },
+            q3Content: {
+                zh: `1. 一段完整的互动叙事：大约5-8分钟，围绕苏轼与两个少年的相遇展开，由场景文字与引导提示构成完整体验。\n\n2. 几个需要你决定的关键节点：不是测试，不需要猜"正确答案"，只需要按你的直觉选择。\n\n3. 一次匿名的文化记录：本活动是上海外国语大学社会实践项目的一部分。你的选择将以匿名方式纳入调研数据，帮助我们理解：什么样的文化叙事方式，更容易在不同文化背景的人群中产生共鸣。所有数据仅用于学术研究，不涉及任何商业用途。`,
+                
+            },
+            brandEnter: { zh: '进入体验',  },
+            formTitle: { zh: '📜 游历之前，请留下印记',  },
+            ageLabel: { zh: '你今年几岁？',  },
+            ageUnder9: { zh: '9岁以下',  },
+            age912: { zh: '9-12岁',  },
+            consentLabel: { zh: '我已阅读并同意 {link}',  },
+            consentInfoTitle: { zh: '信息采集说明',  },
+            privacyNote: { zh: '仅收集匿名统计数据，用于优化游戏体验',  },
+            enterGame: { zh: '开始旅程 →',  },
+            scrollContinue: { zh: '继续',  },
+            endingRestart: { zh: '重头再来',  },
+            autoPlay: { zh: '自动播放',  },
+            autoPlaying: { zh: '自动播放中',  },
+            routeTag: { zh: '🌿 润州',  },
+            bgmOn: { zh: '🔊 江风',  },
+            bgmOff: { zh: '🔇 江风(静)',  },
+            reset: { zh: '重头再来',  },
+        };
+
+        // ===== 更新品牌页文案 =====
+        function updateBrandPage() {
+            brandIntro.textContent = t(uiTexts.projectIntro);
+            q1Label.textContent = t(uiTexts.q1Label);
+            q2Label.textContent = t(uiTexts.q2Label);
+            q3Label.textContent = t(uiTexts.q3Label);
+            const btnText = brandEnterBtn.querySelector('span:first-child');
+            if (btnText) btnText.textContent = t(uiTexts.brandEnter);
+        }
+
+        function updateUITexts() {
+            updateBrandPage();
+            formTitle.textContent = t(uiTexts.formTitle);
+            ageLabel.textContent = t(uiTexts.ageLabel);
+            ageUnder9.textContent = t(uiTexts.ageUnder9);
+            age912.textContent = t(uiTexts.age912);
+            const linkText = t(uiTexts.consentInfoTitle);
+            const labelText = t(uiTexts.consentLabel);
+            consentLabel.innerHTML = labelText.replace(/\{link\}/g, `<span class="info-link" id="consentInfoLink">${linkText}</span>`);
+            consentInfoLink = document.getElementById('consentInfoLink');
+            if (consentInfoLink) {
+                consentInfoLink.addEventListener('click', showConsentInfo);
+            }
+            privacyNote.textContent = t(uiTexts.privacyNote);
+            enterGameBtn.textContent = t(uiTexts.enterGame);
+            autoPlayBtn.textContent = autoPlayEnabled ? t(uiTexts.autoPlaying) : t(uiTexts.autoPlay);
+            resetBtn.textContent = t(uiTexts.reset);
+            routeTag.textContent = t(uiTexts.routeTag);
+        }
+
+        function showConsentInfo() {
+            const lang = currentLang;
+            const info = {
+                zh: `尊敬的参与者，\n\n在您开始本次体验之前，请知悉以下信息：\n\n【调研目的】\n本次互动有声剧体验是上海外国语大学"沪声沪色"项目组开展的一项社会实践研究，旨在了解青少年对红色文化、江南文化、海派文化的认知现状、接受障碍与传播规律。您的参与将帮助我们更好地理解青少年群体对传统文化的感知方式，为本土文化的创造性传播提供实证依据。\n\n【数据采集内容】\n体验过程中，系统将自动记录以下信息：\n1. 您对文化符号的前置认知情况\n2. 您在剧情交互节点中的选择偏好\n3. 您对江南文化相关体验的感知反馈\n\n【数据使用与隐私保护】\n项目组承诺，所有采集数据仅用于学术研究与调研报告撰写，不作任何商业用途。\n数据以匿名化方式存储，不收集您的姓名、联系方式等个人身份信息。\n您有权随时退出体验，退出后数据将不被纳入分析。\n\n请注意，参与即代表同意以上内容。\n点击"开始体验"即代表您已阅读并同意以上说明。\n\n如有任何疑问，请联系项目组：laterlater002@qq.com`,
+                
+            };
+            alert(info[lang] || info.zh);
+        }
+
+        // ===== 显示问题浮窗 =====
+        let currentTriggerElement = null;
+
+        function showQuestionPopup(qIndex, triggerElement) {
+            let title, content;
+            if (qIndex === 1) {
+                title = t(uiTexts.q1Label);
+                content = t(uiTexts.q1Content);
+            } else if (qIndex === 2) {
+                title = t(uiTexts.q2Label);
+                content = t(uiTexts.q2Content);
+            } else if (qIndex === 3) {
+                title = t(uiTexts.q3Label);
+                content = t(uiTexts.q3Content);
+            } else return;
+
+            popupTitle.textContent = title;
+            popupContent.innerHTML = content.replace(/\n/g, '<br>');
+
+            questionPopupOverlay.classList.add('active');
+            const card = document.querySelector('.question-popup-card');
+            card.style.visibility = 'hidden';
+            card.style.display = 'block';
+            card.style.position = 'fixed';
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const cardRect = card.getBoundingClientRect();
+                    const cardHeight = cardRect.height;
+                    const cardWidth = cardRect.width;
+
+                    if (triggerElement) {
+                        const rect = triggerElement.getBoundingClientRect();
+                        const viewportWidth = window.innerWidth;
+                        const viewportHeight = window.innerHeight;
+
+                        let top = rect.top - cardHeight - 16;
+                        let left = rect.left + rect.width / 2 - cardWidth / 2;
+
+                        if (top < 10) {
+                            top = rect.bottom + 16;
+                        }
+                        if (left < 10) left = 10;
+                        if (left + cardWidth > viewportWidth - 10) left = viewportWidth - cardWidth - 10;
+
+                        if (top + cardHeight > viewportHeight - 10) {
+                            top = (viewportHeight - cardHeight) / 2;
+                        }
+
+                        card.style.top = top + 'px';
+                        card.style.left = left + 'px';
+                        card.style.margin = '0';
+                        card.style.transform = 'none';
+                        card.style.maxHeight = Math.min(viewportHeight - top - 20, 70) + 'vh';
+                    } else {
+                        card.style.top = '50%';
+                        card.style.left = '50%';
+                        card.style.transform = 'translate(-50%, -50%)';
+                        card.style.margin = '0';
+                        card.style.maxHeight = '70vh';
+                    }
+
+                    card.style.visibility = 'visible';
+                });
+            });
+        }
+
+        function closeQuestionPopupFunc() {
+            questionPopupOverlay.classList.remove('active');
+            const card = document.querySelector('.question-popup-card');
+            if (card) {
+                card.style.visibility = '';
+                card.style.display = '';
+                card.style.top = '';
+                card.style.left = '';
+                card.style.transform = '';
+                card.style.margin = '';
+                card.style.maxHeight = '';
+            }
+        }
+
+        // ===== 知识卡片数据 =====
+        const knowledgeData = {
+            yangxian: {
+                title: { zh: '阳羡茶',  },
+                content: {
+                    zh: '产于常州宜兴（古称阳羡），唐代即为贡茶，与陆羽《茶经》渊源深厚。苏轼晚年酷爱此茶，曾写诗"雪芽为我求阳羡"。阳羡茶是江南茶文化的代表，也是江南文人雅士生活方式的缩影。',
+                    
+                }
+            },
+            su_bei_gui: {
+                title: { zh: '苏轼北归',  },
+                content: {
+                    zh: '1100年六月，苏轼从海南儋州渡海北归，1101年五月到达润州。此时已64岁，身体衰弱，同年七月病逝于常州。苏轼一生与江南渊源深厚：在杭州修苏堤，在宜兴买田种橘，在常州终老——江南是他生命最后的归宿，也是他诗文中反复书写的精神故土。',
+                    
+                }
+            },
+            jiangnan_canal: {
+                title: { zh: '江南运河',  },
+                content: {
+                    zh: '京杭大运河的江南段，连接长江与钱塘江，是隋唐以来南北交通的大动脉。运河两岸的市镇构成了江南水乡文化的基础，也是《清明上河图》式市井画卷的现实原型。',
+                    
+                }
+            },
+            dingsheng: {
+                title: { zh: '白玉饼',  },
+                content: {
+                    zh: '白玉饼，又称“烂面饼”，是江苏镇江地区的传统面食，其制作技艺已被列入镇江市非物质文化遗产。它以稀软面团包裹五花肉、白萝卜等馅料而得名。在镇江、扬州地区，烂面饼在中秋节时因形似圆月，俗称“团圆饼”，象征家庭团圆。小孩百日时，外婆家必须要来送烂面饼祝贺，当地人俗称“拍屁股”，意思是这么一拍，小孩子就可以坐得稳稳当当的了。',
+                    
+                }
+            }
+        };
+
+        // ===== 人物卡片数据 =====
+        const figureData = {
+            su_shi: {
+                name: { zh: '苏轼',  },
+                years: '1037–1101',
+                desc: {
+                    zh: '字子瞻，号东坡居士，眉州眉山人。北宋文学家、书画家，唐宋八大家之一。一生仕途坎坷，屡遭贬谪，先后被贬黄州、惠州、儋州。诗、词、文、书、画皆精，词开豪放一派。元符三年（1100年）遇赦北归，建中靖国元年（1101年）卒于常州。',
+                    
+                },
+                book: {
+                    zh: ['"神宗尤爱其文，宫中读之，膳进忘良，称为天下奇才。" ——《宋史·苏轼传》',
+                        '"器识之闳伟，议论之卓荦，文章之雄隽，政事之精明。" ——《宋史·苏轼传》',
+                        '"三代以下之诗人，无过庄子、渊明、子美、子瞻者。" —— 王国维《文学小言》'
+                    ],
+                    
+                },
+                folk: {
+                    zh: '"那天一个病弱的老先生走进茶馆，点名要阳羡茶。掌柜的让我快些，说怠慢不得。后来我才知道他就是苏轼——就是那个写"明月几时有"的人。他看起来不像什么大官，穿着一件洗得发白的旧袍子，说话很慢。后来我听人说，他一生去过很多地方，好的地方、不好的地方都去过，但他在哪里都能活下去，还活得挺像样。我想，这就是苏轼吧。"',
+                    
+                }
+            },
+            zhang_zeduan: {
+                name: { zh: '张择端',  },
+                years: '1085?–1145?',
+                desc: {
+                    zh: '字正道，密州东武人。北宋画家。早年游学汴京，后习绘画。宋徽宗时供职翰林图画院，工界画，尤善舟车、市肆、桥梁、街道。代表作《清明上河图》以长卷再现汴京繁荣，是中国绘画史上最具影响力的风俗画之一。',
+                    
+                },
+                book: {
+                    zh: ['"翰林张择端，字正道，东武人也。幼读书，游学于京师，后习绘事。本工其界画，尤嗜于舟车、市桥郭径，别成家数也。" —— 金·张著题跋',
+                        '"《西湖争标图》《清明上河图》卷选入神品。" —— 金·张著题跋'
+                    ],
+                    
+                },
+                folk: {
+                    zh: '"那天茶馆里来了个背画板的少年，说是要去汴京。他蹲在江边画船夫，一画就是一整天。后来我听说他真的去了汴京，画了一幅很长很长的画。我不知道那幅画里是不是也画了贩夫走卒，但我相信他画了。他就是那种人，说过的话，一定会画下来。"',
+                    
+                }
+            },
+            xiaoman: {
+                name: { zh: '李小满',  },
+                years: '约 1089–?',
+                desc: {
+                    zh: '润州城外"江心茶馆"的学徒，十二岁。记性极好，能记住每一个见过的客人的特征。虽然年少，却有一双善于观察的眼睛。他见证了苏轼北归途中在润州的短暂停留，也与未来的画师张择端有过一面之缘。',
+                    
+                },
+                book: {
+                    zh: ['（历史中无直接记载，故事为艺术虚构）'],
+                    
+                },
+                folk: {
+                    zh: '"小满那孩子，从小就机灵。茶馆里南来北往的人，谁干什么活、有啥毛病，他都能记住。后来茶馆关了，他去了哪里，没人知道。"',
+                    
+                }
+            }
+        };
+
+        // ===== 场景定义 =====
+        const scenes = {
+            s0: {
+                type: 'checkbox',
+                text: {
+                    zh: '以下哪些是你听说过的？请选出所有你认识或听说过的：',
+                    
+                },
+                options: [
+                    { label: { zh: '苏轼',  }, value: 'su_shi' },
+                    { label: { zh: '《清明上河图》',  }, value: 'qingming' },
+                    { label: { zh: '金山寺',  }, value: 'jinshan' },
+                    { label: { zh: '阳羡茶',  }, value: 'yangxian' },
+                    { label: { zh: '张择端',  }, value: 'zhang' },
+                    { label: { zh: '江南运河',  }, value: 'canal' }
+                ],
+                submitLabel: { zh: '提交',  },
+                nextScene: 's1',
+                chapter: { zh: '· 序 · 文化初识',  },
+                bg: 'images/jinshan.jpg',
+                leftChar: null,
+                rightChar: null
+            },
+            s1: {
+                text: { zh: '北宋建中靖国元年，五月。润州城外，金山寺下，有家"江心茶馆"。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's2' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 茶馆',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s2: {
+                text: { zh: '十二岁的李小满在这里当学徒，端茶倒水讨生活。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's3' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 学徒',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s3: {
+                text: { zh: '小满有个本事——记性好，见过的客人做什么活计、有什么特点，都能记下来。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's4' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 记忆',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s4: {
+                text: { zh: '那天，一个病弱的老人和一个背着画板的少年走进了茶馆。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's5' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 来客',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s5: {
+                text: { zh: '老人和少年在角落坐下。老人轻声咳嗽，少年则翻动画板，在纸上描画着什么。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's6' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 落座',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s6: {
+                text: { zh: '王掌柜从柜台后面探出头来，冲小满喊道：小满！那位老先生要一盏"阳羡茶"，快些！',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's7' }],
+                leftChar: null,
+                rightChar: null,
+                popup: [{ type: 'knowledge', id: 'yangxian' }],
+                chapter: { zh: '· 第一幕 · 阳羡茶',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s7: {
+                text: { zh: '来了！',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's8' }],
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 取茶',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s8: {
+                text: { zh: '小满端上茶，忍不住好奇，多看了几眼少年的画板。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's9' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 端茶',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s9: {
+                text: { zh: '(察觉到他的目光，抬头笑道)我不喝茶，我画画。你看这江景——金山寺在江心，船来船往，多好看！我要去汴京学画。我已经画了三十七个船夫了。',
+                     },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's10' }],
+                leftChar: null,
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                popup: [{ type: 'figure', id: 'zhang_zeduan' }],
+                chapter: { zh: '· 第一幕 · 画画',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s10: {
+                text: { zh: '你看——这个撑船的，左边用力，右边虚握，因为是逆水。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's11' }],
+                leftChar: null,
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                chapter: { zh: '· 第一幕 · 细节',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s11: {
+                text: { zh: '(脱口而出)那是老周头，他右手有六根手指，握篙特别稳！',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's12' }],
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 记忆',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s12: {
+                text: { zh: '(轻轻咳嗽一声，微笑道)好记性。小友，你叫什么？',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's13' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                popup: [{ type: 'figure', id: 'su_shi' }],
+                chapter: { zh: '· 第一幕 · 问名',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s13: {
+                text: { zh: '回老先生，我叫李小满，是这茶馆的学徒。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's14' }],
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                rightChar: null,
+                chapter: { zh: '· 第一幕 · 回答',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s14: {
+                text: { zh: '(点了点头)小满……好名字。老夫苏轼，刚从海南回来，路过此地。能遇见你们，倒是缘分。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's15' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                popup: [{ type: 'knowledge', id: 'su_bei_gui' }],
+                chapter: { zh: '· 第一幕 · 自我介绍',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s15: {
+                text: { zh: '原来是苏大人！苏大人，您说我这画到了汴京能入画院吗？',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's16' }],
+                leftChar: null,
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                chapter: { zh: '· 第一幕 · 问画',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s16: {
+                text: { zh: '(端详了一会儿画，点头说)画得好。但贵人多爱富贵典雅的宣和体，你爱画舟车市桥、寻常百姓……这恐怕不合他们的口味。',
+                     },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's17' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                chapter: { zh: '· 第一幕 · 点评',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s17: {
+                text: { zh: '我就画这江上所有的人！以后，我要画一幅大的，画尽天下市井！',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's18' }],
+                leftChar: null,
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                chapter: { zh: '· 第一幕 · 倔强',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s18: {
+                text: { zh: '（笑了，却咳了两声）好志气。你倒让老夫想起了自己年轻时……（他若有所思，望向江面）',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's19' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                chapter: { zh: '· 第一幕 · 回忆',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s19: {
+                type: 'scroll',
+                text: { zh: '（画面中出现一张卷轴，开始书写：）',  },
+                scrollContent: {
+                    zh: '自题金山画像\n心似已灰之木，\n身如不系之舟。\n问汝平生功业，\n黄州惠州儋州。',
+                    
+                },
+                nextScene: 's20',
+                chapter: { zh: '· 第一幕 · 金山画像',  },
+                bg: 'images/scroll_bg.jpg',
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' }
+            },
+            s20: {
+                text: { zh: '王掌柜从柜台后走出，端着一碟茶点：老先生，这是小店送您的。新做的白玉饼，尝尝。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's21' }],
+                leftChar: null,
+                rightChar: null,
+                popup: [{ type: 'knowledge', id: 'dingsheng' }],
+                chapter: { zh: '· 第一幕 · 白玉饼',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s21: {
+                text: { zh: '白玉饼……这饼皮薄馅鲜，江南人叫它“烂面饼”。中秋时当团圆饼吃，小孩百日外婆家要送来，说是“拍屁股”，一拍就坐得稳了。江南人过日子，连一块饼都有讲头。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's22' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                chapter: { zh: '· 第一幕 · 烂面饼',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s22: {
+                text: { zh: '三日后，江边。苏轼要登船去常州了。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's23' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第二幕 · 江边',  },
+                bg: 'images/river.jpg'
+            },
+            s23: {
+                text: { zh: '张择端在画最后一幅江景——润州的运河口，杨柳，渔船，还有远处金山寺的塔影。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's24' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第二幕 · 画景',  },
+                bg: 'images/river.jpg'
+            },
+            s24: {
+                text: { zh: '船太多了……怎么安排才不乱呢？',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's25' }],
+                leftChar: null,
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                chapter: { zh: '· 第二幕 · 困扰',  },
+                bg: 'images/river.jpg'
+            },
+            s25: {
+                text: { zh: '(凑过去，看了看画布，然后指着运河说)你看，运河南来北往的船，大船走中间，小船靠两边。挑担的农夫要上坡，得侧身让一让穿绸缎的商人。还有——那棵柳树，是润州的老柳了，春天的时候，整个码头都是柳絮。',
+                     },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's26' }],
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                rightChar: null,
+                popup: [{ type: 'knowledge', id: 'jiangnan_canal' }],
+                chapter: { zh: '· 第二幕 · 运河',  },
+                bg: 'images/river.jpg'
+            },
+            s26: {
+                text: { zh: '对！对！运河、柳树、金山塔——这就是江南。多谢你帮我！',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's27' }],
+                leftChar: null,
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                chapter: { zh: '· 第二幕 · 领悟',  },
+                bg: 'images/river.jpg'
+            },
+            s27: {
+                text: { zh: '(缓缓走来，手里拿着一个茶盏，盏中茶汤清亮)两位小友，老夫今日要离开了，请你们喝一碗茶吧。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's28' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                chapter: { zh: '· 第二幕 · 请茶',  },
+                bg: 'images/river.jpg'
+            },
+            s28: {
+                text: { zh: '苏大人，这…… ',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's280' }],
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                rightChar: null,
+                chapter: { zh: '· 第二幕 · 接茶',  },
+                bg: 'images/river.jpg'
+            },
+            s280: {
+                text: { zh: '多谢苏大人。（轻抿一口）好茶！',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's29' }],
+                leftChar: null,
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                chapter: { zh: '· 第二幕 · 接茶',  },
+                bg: 'images/river.jpg'
+            },
+            s29: {
+                text: { zh: '(笑，把茶盏递给小满)喝便是。说说你尝到了什么。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's30' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                chapter: { zh: '· 第二幕 · 问味',  },
+                bg: 'images/river.jpg'
+            },
+            s30: {
+                type: 'single-choice',
+                text: {
+                    zh: '小满接过茶盏，小心地喝了一口。他端着茶盏，沉默了一会儿。\n\n如果你是李小满，你觉得可能尝到了什么？',
+                    
+                },
+                options: [
+                    { text: { zh: '清香，像春天的味道',  },
+                        value: 'fresh' },
+                    { text: { zh: '甘醇，喝完了嘴里还有余味',  },
+                        value: 'mellow' },
+                    { text: { zh: '有点涩，但涩完之后有回甘',  }, value: 'astringent' }
+                ],
+                nextScene: 's31',
+                chapter: { zh: '· 交互 · 茶味',  },
+                bg: 'images/river.jpg',
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                rightChar: null
+            },
+            s31: {
+                text: { zh: '你说得对。茶和人一样——不只有一种味道。苦的、甜的、清香的，都在同一盏里。',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's32' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                chapter: { zh: '· 第二幕 · 茶如人',  },
+                bg: 'images/river.jpg'
+            },
+            s32: {
+                text: { zh: '船夫喊：苏大人，船要开了！',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's33' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第三幕 · 船将开',  },
+                bg: 'images/river.jpg'
+            },
+            s33: {
+                text: { zh: '(回头，看向小满，也看向屏幕前的人)小满，最后问你——你想活出怎样的人生？',  },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's34' }],
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                chapter: { zh: '· 第三幕 · 人生之问',  },
+                bg: 'images/river.jpg'
+            },
+            s34: {
+                type: 'text',
+                text: { zh: '如果是你，你会怎么回答苏轼？',  },
+                inputLabel: { zh: '你的回答：',  },
+                submitLabel: { zh: '提交回答',  },
+                nextScene: 's35',
+                chapter: { zh: '· 交互 · 人生回答',  },
+                bg: 'images/river.jpg',
+                leftChar: null,
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' }
+            },
+            s35: {
+                text: { zh: '多年以后……\n\n江声依旧，金山寺的钟声也还在。你坐在茶馆里，手边放着一碗茶。\n\n你想起那年苏轼和张择端在江边的对话，想起那幅未完成的画，想起那碗有回甘的茶。\n\n如果有一天，你要留下一样东西，你会留下什么？',
+                     },
+                options: [{ text: { zh: '继续...',  }, nextScene: 's36' }],
+                leftChar: null,
+                rightChar: null,
+                chapter: { zh: '· 第四幕 · 记忆',  },
+                bg: 'images/teahouse.jpg'
+            },
+            s36: {
+                type: 'single-choice',
+                text: { zh: '如果你是小满，多年以后，你会留下什么？',  },
+                options: [
+                    { text: { zh: '苏轼的诗——"心似已灰之木，身如不系之舟"',  },
+                        value: 'poem' },
+                    { text: { zh: '张择端的那幅画——运河、杨柳、金山寺',  }, value: 'painting' },
+                    { text: { zh: '那碗茶——复杂的味道',  }, value: 'tea' }
+                ],
+                nextScene: 's37',
+                chapter: { zh: '· 交互 · 留存',  },
+                bg: 'images/teahouse.jpg',
+                leftChar: null,
+                rightChar: null
+            },
+            s37: {
+                type: 'checkbox',
+                text: { zh: '故事讲完了。现在，你了解了：',  },
+                options: [
+                    { label: { zh: '苏轼',  }, value: 'su_shi' },
+                    { label: { zh: '《清明上河图》',  }, value: 'qingming' },
+                    { label: { zh: '金山寺',  }, value: 'jinshan' },
+                    { label: { zh: '阳羡茶',  }, value: 'yangxian' },
+                    { label: { zh: '张择端',  }, value: 'zhang' },
+                    { label: { zh: '江南运河',  }, value: 'canal' }
+                ],
+                submitLabel: { zh: '提交',  },
+                nextScene: 's38',
+                chapter: { zh: '· 终 · 回响',  },
+                bg: 'images/jinshan.jpg',
+                leftChar: null,
+                rightChar: null
+            },
+            s38: {
+                type: 'ending',
+                text: {
+                    zh: '历史没有记载苏轼、张择端和李小满是否真的在润州相遇。但苏轼确实在1101年五月路过润州，在金山寺写下了那首诗。张择端确实在二十年后画出了《清明上河图》，画中有八百多个人。\n\n而李小满——他可能是你，也可能是我。是每一个在历史长河中，听过一个故事、记住一个人、然后继续往前走的人。\n\n（完）',
+                    
+                },
+                ending: true,
+                chapter: { zh: '· 尾声 · 江声',  },
+                bg: 'images/teahouse.jpg',
+                leftChar: null,
+                rightChar: null
+            }
+        };
+
+        // ===== 辅助函数 =====
+        function playAudio(audioId, onEndCallback) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+            const extension = AUDIO_EXT_MAP[audioId] || '.m4a';
+            const audio = new Audio(asset(`sounds/${audioId}${extension}`));
+            audio.preload = 'auto';
+
+            const finish = () => {
+                if (currentAudio === audio) currentAudio = null;
+                if (onEndCallback) onEndCallback();
+            };
+
+            audio.onerror = () => {
+                console.log(`音频不存在: sounds/${audioId}${extension}`);
+                finish();
+            };
+            audio.onended = finish;
+
+            audio.play().catch(err => {
+                console.log('音频播放失败:', err);
+                const retry = () => {
+                    ['click', 'touchstart', 'keydown'].forEach(evt =>
+                        document.removeEventListener(evt, retry)
+                    );
+                    if (currentAudio === audio) {
+                        audio.play().catch(() => finish());
+                    }
+                };
+                ['click', 'touchstart', 'keydown'].forEach(evt =>
+                    document.addEventListener(evt, retry, { once: true, passive: true })
+                );
+            });
+            currentAudio = audio;
+        }
+
+        function cancelAllSpeech() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+        }
+
+        function hideInteractions() {
+            optionsDiv.style.display = 'none';
+            continueBtn.classList.add('hidden');
+        }
+
+        function restoreInteractions(scene) {
+            if (scene.options && scene.options.length === 1) {
+                optionsDiv.style.display = 'none';
+                continueBtn.classList.remove('hidden');
+            } else {
+                optionsDiv.style.display = 'flex';
+                continueBtn.classList.add('hidden');
+            }
+        }
+
+        function typeWriter(paragraphElements, paragraphsText, speed = 30, callback) {
+            if (typewriterTimer) clearInterval(typewriterTimer);
+            isTyping = true;
+            currentParagraphTexts = paragraphsText;
+            paragraphElements.forEach(p => p.textContent = '');
+            let paraIndex = 0,
+                charIndex = 0;
+
+            function typeNext() {
+                if (paraIndex >= paragraphsText.length) {
+                    clearInterval(typewriterTimer);
+                    typewriterTimer = null;
+                    isTyping = false;
+                    if (callback) callback();
+                    return;
+                }
+                const currentPara = paragraphElements[paraIndex];
+                const currentText = paragraphsText[paraIndex];
+                if (charIndex < currentText.length) {
+                    currentPara.textContent += currentText[charIndex];
+                    charIndex++;
+                    storyDiv.scrollTop = storyDiv.scrollHeight;
+                } else {
+                    paraIndex++;
+                    charIndex = 0;
+                    typeNext();
+                }
+            }
+            typewriterTimer = setInterval(typeNext, speed);
+        }
+
+        function completeTyping() {
+            if (isTyping) {
+                clearInterval(typewriterTimer);
+                typewriterTimer = null;
+                isTyping = false;
+                storyDiv.innerHTML = currentHtmlContent;
+            }
+        }
+
+        // ===== 浮窗 =====
+        function showPopup(type, id) {
+            let content = null;
+            if (type === 'figure') content = figureData[id];
+            else if (type === 'knowledge') content = knowledgeData[id];
+            if (!content) return;
+
+            popupTriggered = true;
+            completeTyping();
+            cancelAllSpeech();
+            clearAutoPlayTimer();
+
+            // 保存当前场景 ID，关闭后用于恢复交互区
+            const sceneIdAtPopup = currentSceneId;
+
+            const existing = document.querySelector('.popup-card');
+            if (existing) existing.remove();
+
+            const popup = document.createElement('div');
+            popup.className = 'popup-card';
+            let innerHtml = `<span class="close-icon" id="closePopup">✕</span>`;
+
+            if (type === 'figure') {
+                innerHtml += `<h3>${t(content.name)} (${content.years})</h3>
+                              <div class="sub">${t(content.desc)}</div>`;
+                if (content.book && content.book[currentLang]) {
+                    innerHtml +=
+                        `<div class="section"><strong>${t({zh:'书中记'})}：</strong><br>${content.book[currentLang].join('<br>')}</div>`;
+                }
+                innerHtml +=
+                    `<div class="section"><strong>${t({zh:'百姓说'})}：</strong> ${t(content.folk)}</div>`;
+            } else if (type === 'knowledge') {
+                innerHtml += `<h3>${t(content.title)}</h3><div>${t(content.content)}</div>`;
+            }
+
+            popup.innerHTML = innerHtml;
+            popupOverlay.innerHTML = '';
+            popupOverlay.appendChild(popup);
+            popupOverlay.classList.add('active');
+            hideInteractions();
+
+            document.getElementById('closePopup').addEventListener('click', function(e) {
+                e.stopPropagation();
+                cancelAllSpeech();
+                closePopupAndContinue(sceneIdAtPopup);
+            });
+
+            popupOverlay.addEventListener('click', function(e) {
+                if (e.target === popupOverlay) {
+                    cancelAllSpeech();
+                    closePopupAndContinue(sceneIdAtPopup);
+                }
+            });
+
+            // 播放卡片音频，结束后关闭弹窗
+            playAudio(id, function() {
+                closePopupAndContinue(sceneIdAtPopup);
+            });
+        }
+
+        // 关闭弹窗并继续：
+        // 1) 若队列还有弹窗，继续弹下一个；
+        // 2) 若队列已空，执行 pendingSceneStart（当页文字 + 当页音频同时启动）。
+        function closePopupAndContinue(forcedSceneId) {
+            cancelAllSpeech();
+            popupOverlay.classList.remove('active');
+            popupOverlay.innerHTML = '';
+            const targetId = forcedSceneId || currentSceneId;
+            const scene = scenes[targetId];
+            if (scene) restoreInteractions(scene);
+
+            if (popupQueue.length > 0) {
+                const next = popupQueue.shift();
+                showPopup(next.type, next.id);
+            } else if (pendingSceneStart) {
+                const fn = pendingSceneStart;
+                pendingSceneStart = null;
+                fn();
+            }
+            adjustCharacterPosition();
+        }
+
+        function processPopupQueue() {
+            if (popupQueue.length > 0) {
+                const item = popupQueue.shift();
+                showPopup(item.type, item.id);
+            }
+        }
+
+        // ===== 卷轴 =====
+        function showScroll(scene) {
+            if (scrollTimer) { clearInterval(scrollTimer);
+                scrollTimer = null; }
+            completeTyping();
+            clearAutoPlayTimer();
+            optionsDiv.style.display = 'none';
+            continueBtn.classList.add('hidden');
+
+            // 卷轴配音与卷轴文字同步开始
+            playAudio('jinshan', function() {
+                console.log('卷轴配音播放完毕');
+            });
+
+            scrollTitle.textContent = t(scene.chapter) || '自题金山画像';
+            scrollCloseBtn.textContent = t(uiTexts.scrollContinue);
+            scrollPoem.textContent = '';
+
+            const poemText = t(scene.scrollContent);
+            const chars = poemText.split('');
+            let index = 0;
+            const isMobile = window.innerWidth < 600;
+
+            if (currentLang === 'zh') {
+                scrollPoem.style.writingMode = 'vertical-rl';
+                scrollPoem.style.fontSize = isMobile ? '1.5rem' : '2.2rem';
+                scrollPoem.style.lineHeight = isMobile ? '2.4' : '2.8';
+                scrollPoem.style.minHeight = isMobile ? '320px' : '350px';
+                scrollPoem.style.maxHeight = isMobile ? '70vh' : 'none';
+                scrollPoem.style.overflowY = 'auto';
+                scrollPoem.style.padding = '0.5rem 1rem';
+                scrollPoem.style.width = 'auto';
+            } else {
+                scrollPoem.style.writingMode = 'horizontal-tb';
+                scrollPoem.style.fontSize = isMobile ? '1.4rem' : '1.8rem';
+                scrollPoem.style.lineHeight = '2.2';
+                scrollPoem.style.minHeight = 'auto';
+                scrollPoem.style.maxHeight = '70vh';
+                scrollPoem.style.overflowY = 'auto';
+                scrollPoem.style.whiteSpace = 'pre-wrap';
+                scrollPoem.style.wordBreak = 'break-word';
+                scrollPoem.style.width = '100%';
+            }
+
+            scrollOverlay.classList.add('active');
+
+            const speed = 80;
+            scrollTimer = setInterval(() => {
+                if (index < chars.length) {
+                    scrollPoem.textContent += chars[index];
+                    index++;
+                } else {
+                    clearInterval(scrollTimer);
+                    scrollTimer = null;
+                }
+            }, speed);
+
+            scrollCloseBtn.onclick = function() {
+                cancelAllSpeech();
+                if (scrollTimer) { clearInterval(scrollTimer);
+                    scrollTimer = null; }
+                scrollOverlay.classList.remove('active');
+                if (scene.nextScene) {
+                    displayScene(scene.nextScene);
+                }
+            };
+        }
+
+        // ===== 尾声 =====
+        function showEnding(scene) {
+            clearAutoPlayTimer();
+            document.querySelector('.top-section').style.display = 'none';
+            document.querySelector('.mid-section').style.display = 'none';
+            document.querySelector('.bottom-dialog').style.display = 'none';
+            document.querySelector('.footer').style.display = 'none';
+            document.getElementById('charLeft').style.display = 'none';
+            document.getElementById('charRight').style.display = 'none';
+            document.querySelector('.mask').style.display = 'none';
+            endingTitle.textContent = t(scene.chapter) || '· 尾声 ·';
+            const rawText = t(scene.text);
+            const paragraphs = rawText.split(/\n\s*\n/).filter(p => p.trim() !== '');
+            let bodyHtml = '';
+            paragraphs.forEach(p => {
+                const lines = p.split('\n').filter(l => l.trim() !== '');
+                bodyHtml += `<p>${lines.join('<br>')}</p>`;
+            });
+            endingBody.innerHTML = bodyHtml;
+            endingScreen.classList.add('active');
+            endingRestartBtn.textContent = t(uiTexts.endingRestart);
+            endingRestartBtn.onclick = function() { resetGame(); };
+        }
+
+        function adjustCharacterPosition() {
+            const bottomDialog = document.querySelector('.bottom-dialog');
+            const leftChar = document.querySelector('.character-left');
+            const rightChar = document.querySelector('.character-right');
+            if (!bottomDialog) return;
+            const rect = bottomDialog.getBoundingClientRect();
+            const containerRect = gameContainer.getBoundingClientRect();
+            const bottomVal = containerRect.bottom - rect.top;
+            if (leftChar && leftChar.style.display !== 'none') leftChar.style.bottom = bottomVal + 'px';
+            if (rightChar && rightChar.style.display !== 'none') rightChar.style.bottom = bottomVal + 'px';
+        }
+
+        // ===== 统计 =====
+        function recordSceneDuration(sceneId) {
+            if (sceneId && sceneVisits[sceneId] !== undefined) {
+                const duration = (Date.now() - currentSceneStartTime) / 1000;
+                sceneVisits[sceneId] = Math.round(duration);
+            }
+        }
+
+        function startSceneTimer(sceneId) {
+            currentSceneStartTime = Date.now();
+            if (!sceneVisits[sceneId]) sceneVisits[sceneId] = 0;
+        }
+
+        // ===== 提交数据 =====
+        async function submitGameData() {
+            if (isGameFinished) return;
+            isGameFinished = true;
+            recordSceneDuration(currentSceneId);
+            const totalDuration = (Date.now() - sessionStartTime) / 1000;
+            const data = {
+                player_language: currentLang,
+                player_age_group: playerAge,
+                choice_history: choiceHistory,
+                total_duration: Math.round(totalDuration),
+                finished_at: new Date().toISOString(),
+                node0_culture_pre: playerChoices.node0_culture_pre || '',
+                node1_tea_taste: playerChoices.node1_tea_taste || '',
+                node2_life_answer: playerChoices.node2_life_answer || '',
+                node3_memory: playerChoices.node3_memory || '',
+                node4_culture_post: playerChoices.node4_culture_post || ''
+            };
+            console.log('提交的数据：', data);
+            try {
+                const { error } = await supabaseClient.from('game_sessions').insert([data]);
+                if (error) {
+                    console.error('Supabase 插入失败:', error);
+                    localStorage.setItem('pendingGameData', JSON.stringify(data));
+                    alert('数据提交失败，已保存在本地。');
+                } else {
+                    console.log('数据提交成功！');
+                    localStorage.removeItem('pendingGameData');
+                }
+            } catch (e) {
+                console.error('网络错误:', e);
+                localStorage.setItem('pendingGameData', JSON.stringify(data));
+                alert('网络异常，数据已本地保存。');
+            }
+        }
+
+        // ===== 自动播放调度 =====
+        function scheduleAutoPlay() {
+            // 自动播放已由配音结束回调驱动，此函数保留占位
+        }
+
+        function clearAutoPlayTimer() {
+            // 不再需要定时器
+        }
+
+        // ===== 核心显示函数 =====
+        function displayScene(sceneId) {
+            sceneAudioPending = false;
+
+            if (currentSceneId && currentSceneId !== sceneId) {
+                recordSceneDuration(currentSceneId);
+            }
+            const scene = scenes[sceneId];
+            if (!scene) return;
+            if (scene.type === 'ending') {
+                if (!isGameFinished) {
+                    setTimeout(() => { if (!isGameFinished) submitGameData(); }, 500);
+                }
+                showEnding(scene);
+                currentSceneId = sceneId;
+                clearAutoPlayTimer();
+                return;
+            }
+            if (endingScreen.classList.contains('active')) {
+                endingScreen.classList.remove('active');
+                document.querySelector('.top-section').style.display = 'block';
+                document.querySelector('.mid-section').style.display = 'flex';
+                document.querySelector('.bottom-dialog').style.display = 'flex';
+                document.querySelector('.footer').style.display = 'flex';
+                document.querySelector('.mask').style.display = 'block';
+            }
+            if (scrollOverlay.classList.contains('active')) {
+                if (scrollTimer) { clearInterval(scrollTimer);
+                    scrollTimer = null; }
+                scrollOverlay.classList.remove('active');
+            }
+            cancelAllSpeech();
+            popupOverlay.classList.remove('active');
+            popupOverlay.innerHTML = '';
+            popupQueue = [];
+            pendingSceneStart = null;
+            currentSceneId = sceneId;
+            startSceneTimer(sceneId);
+            clearAutoPlayTimer();
+
+            if (scene.bg) {
+                gameContainer.style.backgroundImage = `url('${asset(scene.bg)}')`;
+                gameContainer.style.backgroundColor = 'transparent';
+            } else {
+                gameContainer.style.backgroundImage = 'none';
+                gameContainer.style.backgroundColor = '#f6efe3';
+            }
+            if (scene.chapter) chapterTag.textContent = t(scene.chapter);
+            routeTag.innerText = t(uiTexts.routeTag);
+            routeTag.style.display = 'inline';
+
+            const text = t(scene.text);
+            const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim() !== '');
+            let htmlContent = '';
+            const plainTexts = [];
+            paragraphs.forEach(para => {
+                const lines = para.split('\n').filter(l => l.trim() !== '');
+                const plain = lines.join('\n');
+                plainTexts.push(plain);
+                htmlContent += `<p>${lines.join('<br>')}</p>`;
+            });
+            if (htmlContent === '') htmlContent = '<p></p>';
+            currentHtmlContent = htmlContent;
+            currentParagraphTexts = plainTexts;
+            storyDiv.innerHTML = '';
+            const paraElements = [];
+            plainTexts.forEach(() => {
+                const p = document.createElement('p');
+                storyDiv.appendChild(p);
+                paraElements.push(p);
+            });
+
+            // ===== 定义「当页播放」：打字机 + 当页音频同时启动 =====
+            const startPlayback = () => {
+                if (scene.type === 'scroll' || scene.type === 'ending') return;
+                playAudio(sceneId, function() {
+                    if (autoPlayEnabled && scene.options && scene.options.length === 1) {
+                        setTimeout(() => {
+                            if (!continueBtn.classList.contains('hidden')) {
+                                continueBtn.click();
+                            }
+                        }, 500);
+                    }
+                });
+                typeWriter(paraElements, plainTexts, 30, () => {});
+            };
+
+            optionsDiv.innerHTML = '';
+            continueBtn.classList.add('hidden');
+
+            if (scene.type === 'scroll') {
+                storyDiv.innerHTML = '';
+                showScroll(scene);
+                updateCharacters(scene.leftChar, scene.rightChar);
+                setTimeout(adjustCharacterPosition, 50);
+
+                const nextIdScroll = scene.nextScene;
+                if (nextIdScroll) preloader.loadScene(nextIdScroll);
+                return;
+            }
+
+            if (scene.type === 'checkbox') {
+                optionsDiv.style.display = 'flex';
+                const container = document.createElement('div');
+                container.style.display = 'flex';
+                container.style.flexDirection = 'column';
+                container.style.gap = '0.5rem';
+                scene.options.forEach(opt => {
+                    const label = document.createElement('label');
+                    label.style.display = 'flex';
+                    label.style.alignItems = 'center';
+                    label.style.gap = '0.5rem';
+                    label.style.cursor = 'pointer';
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.value = opt.value;
+                    const span = document.createElement('span');
+                    span.innerHTML = t(opt.label);
+                    label.appendChild(cb);
+                    label.appendChild(span);
+                    container.appendChild(label);
+                });
+                const submitBtn = document.createElement('button');
+                submitBtn.className = 'option-btn';
+                submitBtn.textContent = t(scene.submitLabel);
+                submitBtn.style.marginTop = '0.8rem';
+                submitBtn.addEventListener('click', () => {
+                    clearAutoPlayTimer();
+                    const checked = Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(cb =>
+                        cb.value);
+                    if (currentSceneId === 's0') {
+                        playerChoices.node0_culture_pre = checked.join(',');
+                    } else if (currentSceneId === 's37') {
+                        playerChoices.node4_culture_post = checked.join(',');
+                    }
+                    choiceHistory.push({
+                        sceneId: currentSceneId,
+                        interaction: 'checkbox',
+                        values: checked,
+                        timestamp: new Date().toISOString()
+                    });
+                    displayScene(scene.nextScene);
+                });
+                container.appendChild(submitBtn);
+                optionsDiv.appendChild(container);
+            } else if (scene.type === 'single-choice') {
+                optionsDiv.style.display = 'flex';
+                scene.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.textContent = t(opt.text);
+                    btn.addEventListener('click', () => {
+                        clearAutoPlayTimer();
+                        if (currentSceneId === 's30') {
+                            playerChoices.node1_tea_taste = opt.value;
+                        } else if (currentSceneId === 's36') {
+                            playerChoices.node3_memory = opt.value;
+                        }
+                        choiceHistory.push({
+                            sceneId: currentSceneId,
+                            interaction: 'single-choice',
+                            value: opt.value,
+                            text: t(opt.text),
+                            timestamp: new Date().toISOString()
+                        });
+                        displayScene(scene.nextScene);
+                    });
+                    optionsDiv.appendChild(btn);
+                });
+            } else if (scene.type === 'text') {
+                optionsDiv.style.display = 'flex';
+                const container = document.createElement('div');
+                container.style.width = '100%';
+                const label = document.createElement('label');
+                label.textContent = t(scene.inputLabel);
+                label.style.display = 'block';
+                label.style.marginBottom = '0.5rem';
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.style.width = '100%';
+                input.style.padding = '0.5rem';
+                input.style.border = '1px solid #a3c6a0';
+                input.style.borderRadius = '8px';
+                input.style.background = '#fafff5';
+                input.style.fontFamily = 'inherit';
+                const submitBtn = document.createElement('button');
+                submitBtn.className = 'option-btn';
+                submitBtn.textContent = t(scene.submitLabel);
+                submitBtn.style.marginTop = '0.8rem';
+                submitBtn.addEventListener('click', () => {
+                    clearAutoPlayTimer();
+                    const val = input.value.trim() || '(未填写)';
+                    if (currentSceneId === 's34') {
+                        playerChoices.node2_life_answer = val;
+                    }
+                    choiceHistory.push({
+                        sceneId: currentSceneId,
+                        interaction: 'text',
+                        value: val,
+                        timestamp: new Date().toISOString()
+                    });
+                    displayScene(scene.nextScene);
+                });
+                container.appendChild(label);
+                container.appendChild(input);
+                container.appendChild(submitBtn);
+                optionsDiv.appendChild(container);
+            } else {
+                if (scene.options && scene.options.length === 1) {
+                    optionsDiv.style.display = 'none';
+                    continueBtn.classList.remove('hidden');
+                    continueBtn.onclick = function() {
+                        clearAutoPlayTimer();
+                        if (isTyping) { completeTyping(); return; }
+                        displayScene(scene.options[0].nextScene);
+                    };
+                } else if (scene.options && scene.options.length > 1) {
+                    optionsDiv.style.display = 'flex';
+                    scene.options.forEach(opt => {
+                        const btn = document.createElement('button');
+                        btn.className = 'option-btn';
+                        btn.textContent = t(opt.text);
+                        btn.addEventListener('click', () => {
+                            clearAutoPlayTimer();
+                            choiceHistory.push({
+                                sceneId: currentSceneId,
+                                interaction: 'continue',
+                                text: t(opt.text),
+                                timestamp: new Date().toISOString()
+                            });
+                            displayScene(opt.nextScene);
+                        });
+                        optionsDiv.appendChild(btn);
+                    });
+                } else {
+                    optionsDiv.style.display = 'none';
+                }
+            }
+
+            // ===== 弹窗优先，当页语音延后 =====
+            // 有弹窗：先把卡片入队并弹出（播放卡片音频）；弹窗全部关闭后，
+            //        再执行 startPlayback（当页文字 + 当页音频同时启动）。
+            // 无弹窗：直接 startPlayback（文字 + 音频同时启动）。
+            if (scene.popup) {
+                pendingSceneStart = startPlayback;
+                let items = Array.isArray(scene.popup) ? scene.popup : [scene.popup];
+                items.forEach(item => {
+                    if (typeof item === 'string') popupQueue.push({ type: 'figure', id: item });
+                    else if (typeof item === 'object' && item.type && item.id) popupQueue.push(item);
+                });
+                hideInteractions();
+                clearAutoPlayTimer();
+                processPopupQueue();
+            } else {
+                startPlayback();
+            }
+
+            updateCharacters(scene.leftChar, scene.rightChar);
+            setTimeout(adjustCharacterPosition, 50);
+
+            // ===== 预加载下一场景资源 =====
+            const nextId = scene.nextScene ||
+                (scene.options && scene.options[0] && scene.options[0].nextScene);
+            if (nextId) preloader.loadScene(nextId);
+        }
+
+        function updateCharacters(leftChar, rightChar) {
+            const leftDiv = document.getElementById('charLeft');
+            const rightDiv = document.getElementById('charRight');
+            const leftImg = document.getElementById('charLeftImg');
+            const rightImg = document.getElementById('charRightImg');
+            const leftName = document.getElementById('charLeftName');
+            const rightName = document.getElementById('charRightName');
+            if (leftChar) {
+                leftImg.src = asset(leftChar.image);
+                leftName.textContent = t(leftChar.name);
+                leftDiv.style.display = 'flex';
+            } else leftDiv.style.display = 'none';
+            if (rightChar) {
+                rightImg.src = asset(rightChar.image);
+                rightName.textContent = t(rightChar.name);
+                rightDiv.style.display = 'flex';
+            } else rightDiv.style.display = 'none';
+        }
+
+        // ===== 重置游戏 =====
+        function resetGame() {
+            cancelAllSpeech();
+            if (scrollTimer) { clearInterval(scrollTimer);
+                scrollTimer = null; }
+            if (typewriterTimer) { clearInterval(typewriterTimer);
+                typewriterTimer = null; }
+            popupOverlay.classList.remove('active');
+            scrollOverlay.classList.remove('active');
+            if (endingScreen.classList.contains('active')) {
+                endingScreen.classList.remove('active');
+            }
+            currentSceneId = 's0';
+            sceneVisits = {};
+            choiceHistory = [];
+            popupTriggered = false;
+            isGameFinished = false;
+            sessionStartTime = Date.now();
+            currentSceneStartTime = Date.now();
+            playerChoices = { node0_culture_pre: '', node1_tea_taste: '', node2_life_answer: '', node3_memory: '',
+                node4_culture_post: '' };
+            isTyping = false;
+            currentHtmlContent = '';
+            currentParagraphTexts = [];
+            popupQueue = [];
+            pendingSceneStart = null;
+            autoPlayEnabled = false;
+            sceneAudioPending = false;
+            autoPlayBtn.textContent = t(uiTexts.autoPlay);
+
+            document.querySelector('.top-section').style.display = 'block';
+            document.querySelector('.mid-section').style.display = 'flex';
+            document.querySelector('.bottom-dialog').style.display = 'flex';
+            document.querySelector('.footer').style.display = 'flex';
+            document.querySelector('.mask').style.display = 'block';
+            document.getElementById('charLeft').style.display = 'none';
+            document.getElementById('charRight').style.display = 'none';
+
+            brandPage.style.display = 'flex';
+            brandPage.classList.remove('fade-out');
+            preGameForm.classList.remove('active');
+            consentCheck.checked = false;
+            ageSelect.value = '9-12';
+            updateUITexts();
+            storyDiv.innerHTML = '';
+            optionsDiv.innerHTML = '';
+            continueBtn.classList.add('hidden');
+            chapterTag.textContent = '· 序 ·';
+            gameContainer.style.backgroundImage = 'none';
+            gameContainer.style.backgroundColor = '#f6efe3';
+            bgmOn = false;
+            bgmToggle.textContent = t(uiTexts.bgmOn);
+            bgWind.pause();
+            bgWind.currentTime = 0;
+        }
+
+        // ===== 事件绑定 =====
+        window.addEventListener('resize', adjustCharacterPosition);
+
+        let bgmOn = false;
+        bgmToggle.addEventListener('click', () => {
+            bgmOn = !bgmOn;
+            if (bgmOn) {
+                bgWind.play().catch(e => console.log('背景音播放失败:', e));
+                bgmToggle.innerText = t(uiTexts.bgmOn);
+            } else {
+                bgWind.pause();
+                bgmToggle.innerText = t(uiTexts.bgmOff);
+            }
+        });
+
+        autoPlayBtn.addEventListener('click', () => {
+            autoPlayEnabled = !autoPlayEnabled;
+            autoPlayBtn.textContent = autoPlayEnabled ? t(uiTexts.autoPlaying) : t(uiTexts.autoPlay);
+        });
+
+        resetBtn.addEventListener('click', resetGame);
+
+        questionItems.forEach(item => {
+            item.addEventListener('click', function() {
+                showQuestionPopup(parseInt(this.dataset.q), this);
+            });
+        });
+
+        closeQuestionPopup.addEventListener('click', closeQuestionPopupFunc);
+        questionPopupOverlay.addEventListener('click', function(e) {
+            if (e.target === this) closeQuestionPopupFunc();
+        });
+
+        brandEnterBtn.addEventListener('click', function() {
+            currentLang = 'zh';
+            updateUITexts();
+            brandPage.classList.add('fade-out');
+            setTimeout(() => {
+                brandPage.style.display = 'none';
+                preGameForm.classList.add('active');
+                if (!audioInitialized) {
+                    bgWind.play().then(() => audioInitialized = true).catch(e => console.log('背景音播放失败:', e));
+                }
+            }, 800);
+        });
+
+        enterGameBtn.addEventListener('click', function() {
+            if (!consentCheck.checked) {
+                alert(t({ zh: '请先阅读并同意信息采集说明。',  }));
+                return;
+            }
+            playerAge = ageSelect.value;
+            preGameForm.classList.remove('active');
+            choiceHistory.push({
+                sceneId: 'pre_game',
+                interaction: 'age',
+                age: playerAge,
+                language: currentLang,
+                timestamp: new Date().toISOString()
+            });
+            sessionStartTime = Date.now();
+            updateUITexts();
+            bgmToggle.textContent = bgmOn ? t(uiTexts.bgmOn) : t(uiTexts.bgmOff);
+            routeTag.textContent = t(uiTexts.routeTag);
+            displayScene('s0');
+
+            // 游戏启动后延迟 3 秒，在后台静默预加载全部资源
+            setTimeout(() => preloader.startBackground(), 3000);
+        });
+
+        // ===== 初始化 =====
+        window.addEventListener('load', function() {
+            const brandLogo = document.getElementById('brandLogo');
+            if (brandLogo) brandLogo.src = asset('images/logo.jpg');
+            bgWind.src = asset('sounds/wind.m4a');
+            bgWind.load();
+
+            currentLang = 'zh';
+            updateUITexts();
+            brandPage.style.display = 'flex';
+            brandPage.classList.remove('fade-out');
+            preGameForm.classList.remove('active');
+            const pending = localStorage.getItem('pendingGameData');
+            if (pending) {
+                try {
+                    const data = JSON.parse(pending);
+                    supabaseClient.from('game_sessions').insert([data]).then(({ error }) => {
+                        if (!error) {
+                            localStorage.removeItem('pendingGameData');
+                            console.log('本地待提交数据已成功上传');
+                        }
+                    });
+                } catch (e) { console.log('本地数据解析失败', e); }
+            }
+        });
+    </script>
+</body>
+</html>

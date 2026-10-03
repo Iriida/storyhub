@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+<title>故纸舟·赤壁</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
+<link rel="preload" as="image" href="images/fire.jpg">
+<link rel="preload" as="image" href="images/crossroads.jpg">
+<link rel="prefetch" href="sounds/opening1.m4a">
+<link rel="prefetch" href="sounds/opening2.m4a">
+<link rel="prefetch" href="sounds/crossroads.m4a">
+<link rel="prefetch" href="sounds/wind.m4a">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
+<style>
+/* ========== 基础 ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background: #4a3e35;
+  font-family: "LXGW WenKai", "霞鹜文楷", "标小篆", "KaiTi", "楷体", "华文楷体", serif;
+}
+
+/* ========== 主容器 ========== */
+.game-container {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 820px;
+  height: 95vh;
+  padding: 1.5rem 1.5rem 0;
+  background: #f8f0e2 linear-gradient(145deg, #f3e9d2 0%, #faf1e0 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, .5),
+    0 0 0 1px #b59d7a inset,
+    0 0 0 3px #7c5f42 inset;
+}
+
+.mask {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(243, 234, 216, .15);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ========== 封面 ========== */
+.cover-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2f2923 linear-gradient(145deg, #4a4036 0%, #2f2923 100%);
+  box-shadow: 0 0 0 1px #b59d7a inset, 0 0 0 3px #7c5f42 inset;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .8s ease;
+}
+.cover-screen.fade-out { opacity: 0; pointer-events: none; }
+
+.cover-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 80%;
+  color: #f0e5d2;
+  text-align: center;
+  animation: gentle-pulse 3s ease-in-out infinite;
+}
+.cover-title {
+  margin-bottom: .2rem;
+  font-family: "标小篆", "LXGW WenKai", serif;
+  font-size: 3.5rem;
+  letter-spacing: 8px;
+  text-shadow: 2px 2px 0 #5e4a33, 4px 4px 0 rgba(0, 0, 0, .3);
+}
+.cover-subtitle {
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  letter-spacing: 6px;
+  opacity: .9;
+}
+.cover-quote {
+  display: inline-block;
+  margin-bottom: 3rem;
+  padding: .8rem 0;
+  border-top: 1px solid #b59d7a;
+  border-bottom: 1px solid #b59d7a;
+  font-size: 1.2rem;
+  font-style: italic;
+  opacity: .8;
+}
+.cover-btn {
+  padding: .8rem 3rem;
+  border: 2px solid #b59d7a;
+  border-radius: 4rem;
+  background: transparent;
+  box-shadow: 4px 4px 0 #5e4a33;
+  color: #f0e5d2;
+  font: inherit;
+  font-size: 2rem;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all .3s;
+}
+.cover-btn:hover {
+  background: #b59d7a;
+  color: #2d2a22;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #5e4a33;
+}
+.cover-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #5e4a33; }
+
+@keyframes gentle-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
+}
+
+/* ========== 浮窗 ========== */
+.popup-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .3);
+}
+.popup-overlay.active { display: flex; }
+
+.popup-card {
+  position: relative;
+  max-width: 90%;
+  max-height: 80%;
+  margin: 1rem;
+  padding: 1.2rem 1.5rem;
+  overflow-y: auto;
+  border: 1px solid #d4bc9a;
+  border-left: 6px solid #9c7e5c;
+  border-radius: 0 12px 12px 0;
+  background: #fff9ea;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+  color: #3f3327;
+  font-family: "霞鹜文楷", "KaiTi", serif;
+  font-size: 1rem;
+  animation: fade-in .3s ease;
+}
+.popup-card h3 {
+  margin-bottom: .8rem;
+  padding-bottom: .3rem;
+  border-bottom: 1px dashed #bb9b78;
+  font-family: "标小篆", "霞鹜文楷", serif;
+  font-size: 1.5rem;
+  color: #6b4f35;
+}
+.popup-card .sub { margin-bottom: .8rem; font-style: italic; color: #8b6f4c; }
+.popup-card .section { margin: .8rem 0; }
+.popup-card .section strong { display: inline-block; width: 4.5em; color: #7b583a; }
+.popup-card .close-icon {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 1.4rem;
+  color: #b38b60;
+  cursor: pointer;
+}
+.popup-card .voice-icon {
+  display: inline-block;
+  padding: .2rem .8rem;
+  border-radius: 2rem;
+  background: #9e7b56;
+  color: #fff;
+  font-size: .85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== 顶栏 ========== */
+.top-section { flex-shrink: 0; position: relative; z-index: 2; margin-bottom: .5rem; }
+
+h1 {
+  display: inline-block;
+  margin: 0 0 .2rem 1.5rem;
+  padding-bottom: .2rem;
+  border-bottom: 2px solid #b59d7a;
+  font-family: "标小篆", "霞鹜文楷", serif;
+  font-size: 2.2rem;
+  font-weight: normal;
+  letter-spacing: 4px;
+  color: #4a3729;
+  text-shadow: 1px 1px 0 #e9d9be;
+}
+.chapter-tag {
+  margin: -.2rem 0 .5rem 1.5rem;
+  font-size: 1rem;
+  font-style: italic;
+  letter-spacing: 2px;
+  color: #8b6f4c;
+}
+
+/* ========== 中部选项 ========== */
+.mid-section {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: center;
+  margin: .5rem 0 1rem;
+  padding: 0 1rem;
+  overflow-y: auto;
+  z-index: 2;
+}
+.options-area { display: flex; flex-direction: column; gap: .8rem; width: 100%; }
+
+.option-btn {
+  width: 100%;
+  padding: .8rem 1.5rem;
+  border: 1px solid #9e8468;
+  border-radius: 3rem;
+  background: #f0e5d2;
+  box-shadow: 4px 4px 0 #b59d7a;
+  color: #2d2a22;
+  font-family: "霞鹜文楷", "KaiTi", serif;
+  font-size: 1.25rem;
+  letter-spacing: .02rem;
+  text-align: left;
+  cursor: pointer;
+  transition: .15s;
+}
+.option-btn:hover {
+  background: #e6d6bc;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #b59d7a;
+}
+.option-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #b59d7a; }
+
+/* ========== 底部对话框 ========== */
+.bottom-dialog {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  max-height: 35vh;
+  margin-top: .5rem;
+  padding: 1.2rem 1.5rem .8rem;
+  border: 2px solid #b59d7a;
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: rgba(245, 235, 215, .9);
+  box-shadow: 0 -4px 12px rgba(90, 70, 40, .2);
+  backdrop-filter: blur(2px);
+  z-index: 2;
+}
+.story-area {
+  flex: 1;
+  min-height: 80px;
+  max-height: 200px;
+  margin-bottom: .5rem;
+  overflow-y: auto;
+  color: #2d2a22;
+  font-family: "霞鹜文楷", "KaiTi", "楷体", serif;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  word-break: break-word;
+  scrollbar-width: thin;
+  scrollbar-color: #b59d7a #f0e5d2;
+}
+.story-area::-webkit-scrollbar { width: 6px; }
+.story-area::-webkit-scrollbar-thumb { background: #b59d7a; border-radius: 3px; }
+.story-area p { margin: .6em 0; text-indent: 2em; white-space: pre-wrap; }
+
+.continue-btn {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-top: .2rem;
+  border: none;
+  background: transparent;
+  color: #7b5f42;
+  font-size: 2.6rem;
+  line-height: 1;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, .2);
+  cursor: pointer;
+  user-select: none;
+  transition: all .2s ease;
+}
+.continue-btn:hover  { color: #5e4a33; transform: scale(1.15); text-shadow: 3px 3px 5px rgba(0, 0, 0, .3); }
+.continue-btn:active { transform: scale(.95); text-shadow: 1px 1px 2px rgba(0, 0, 0, .2); }
+.continue-btn.hidden { display: none; }
+
+/* ========== 底部状态栏 ========== */
+.footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: .3rem;
+  padding: .3rem .5rem .5rem;
+  border-top: 1px solid #dacbb0;
+  color: #6b5a48;
+  font-size: .9rem;
+  z-index: 2;
+}
+.bgm-control {
+  padding: .3rem .9rem;
+  border: 1px solid #9e8468;
+  border-radius: 2rem;
+  background: transparent;
+  color: #7b5f42;
+  cursor: pointer;
+}
+.reset-btn {
+  padding: .4rem 1.2rem;
+  border: 1px solid #7b5f42;
+  border-radius: 3rem;
+  background: #d2bc9a;
+  box-shadow: 3px 3px 0 #5e4a33;
+  color: #2f2a1f;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: .1s;
+}
+.reset-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #5e4a33; }
+
+/* ========== 立绘 ========== */
+.character-left,
+.character-right {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  pointer-events: none;
+}
+.character-left  { left: 15px; }
+.character-right { right: 15px; }
+
+.character-left img,
+.character-right img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .4));
+}
+.char-name {
+  position: absolute;
+  bottom: 0;
+  padding: .3rem 1.2rem;
+  border: 1px solid #b59d7a;
+  border-radius: 30px;
+  background: rgba(30, 30, 30, .8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+  color: #f0e5d2;
+  font-family: "霞鹜文楷", "KaiTi", serif;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+.character-left  .char-name { left: 100%;  margin-left: 8px; }
+.character-right .char-name { right: 100%; margin-right: 8px; }
+
+/* ========== 史书页 ========== */
+.history-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #3d352e linear-gradient(145deg, #4d4239 0%, #2f2923 100%);
+  box-shadow: 0 0 0 1px #b59d7a inset, 0 0 0 3px #7c5f42 inset;
+  color: #f0e5d2;
+  font-family: "霞鹜文楷", "KaiTi", serif;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .6s ease;
+}
+.history-screen.active { opacity: 1; pointer-events: auto; }
+
+.history-text {
+  max-width: 90%;
+  margin-bottom: 3rem;
+  font-size: 1.5rem;
+  line-height: 2;
+  text-align: center;
+  white-space: pre-wrap;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, .5);
+}
+.history-options { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 300px; }
+.history-btn {
+  width: 100%;
+  padding: .8rem 2rem;
+  border: 2px solid #b59d7a;
+  border-radius: 3rem;
+  background: transparent;
+  box-shadow: 3px 3px 0 #5e4a33;
+  color: #f0e5d2;
+  font: inherit;
+  font-size: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: .2s;
+}
+.history-btn:hover {
+  background: #b59d7a;
+  color: #2d2a22;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 #5e4a33;
+}
+.history-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #5e4a33; }
+
+/* ========== 响应式 ========== */
+@media (max-width: 600px) {
+  .game-container { padding: .8rem .8rem 0; }
+  h1 { font-size: 1.6rem; margin-left: .5rem; }
+  .chapter-tag { font-size: .9rem; }
+  .option-btn { padding: .7rem 1rem; font-size: 1rem; }
+  .story-area { font-size: .95rem; }
+  .bottom-dialog { max-height: 35vh; padding: 1rem 1.2rem .6rem; }
+  .continue-btn { width: 32px; height: 32px; font-size: 2rem; }
+
+  .character-left, .character-right { width: 130px; }
+  .character-left  { left: 5px; }
+  .character-right { right: 5px; }
+  .char-name { padding: .2rem 1rem; font-size: .8rem; }
+  .character-left  .char-name { margin-left: 5px; }
+  .character-right .char-name { margin-right: 5px; }
+}
+
+@media (min-width: 601px) and (max-width: 1000px) {
+  h1 { font-size: 1.8rem; }
+  .chapter-tag { font-size: .9rem; }
+  .option-btn { padding: .6rem 1rem; font-size: 1.1rem; }
+  .story-area { font-size: 1rem; }
+  .bottom-dialog { max-height: 40vh; padding: 1rem 1.2rem .6rem; }
+  .continue-btn { width: 28px; height: 28px; font-size: 2.2rem; }
+  .character-left, .character-right { width: 150px; }
+  .char-name { padding: .2rem 1rem; font-size: .9rem; }
+}
+
+/* ========== 加载界面 ========== */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2f2923 linear-gradient(145deg, #4a4036 0%, #2f2923 100%);
+  transition: opacity .5s ease;
+}
+.loading-screen.fade-out { opacity: 0; pointer-events: none; }
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  max-width: 400px;
+}
+.loading-title {
+  margin-bottom: 2rem;
+  font-family: "标小篆", "LXGW WenKai", serif;
+  font-size: 2.5rem;
+  letter-spacing: 6px;
+  color: #f0e5d2;
+  text-shadow: 2px 2px 0 #5e4a33;
+}
+.loading-bar-wrap {
+  width: 100%;
+  height: 8px;
+  border: 1px solid #b59d7a;
+  border-radius: 4px;
+  background: rgba(240, 229, 210, .1);
+  overflow: hidden;
+}
+.loading-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #b59d7a, #d4bc9a);
+  border-radius: 4px;
+  transition: width .3s ease;
+}
+.loading-text {
+  margin-top: 1rem;
+  color: #b59d7a;
+  font-size: .9rem;
+  letter-spacing: 2px;
+}
+</style>
+</head>
+
+<body>
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-content">
+    <div class="loading-title">故纸舟·赤壁</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar" id="loadingBar"></div>
+    </div>
+    <div class="loading-text" id="loadingText">江畔解缆，船家正备</div>
+  </div>
+</div>
+
+<div class="game-container" id="gameContainer">
+  <div class="mask"></div>
+
+  <!-- 封面 -->
+  <div class="cover-screen" id="coverScreen">
+    <div class="cover-content">
+      <div class="cover-title">赤壁</div>
+      <div class="cover-subtitle">· 故纸舟 ·</div>
+      <div class="cover-quote">「一页江声，半船史」</div>
+      <button class="cover-btn" id="startGameBtn">启 卷</button>
+    </div>
+  </div>
+
+  <!-- 背景音 -->
+  <audio id="bgWind" loop preload="auto" style="display:none">
+    <source src="sounds/wind.m4a" type="audio/mp4">
+  </audio>
+
+  <!-- 浮窗 -->
+  <div class="popup-overlay" id="popupOverlay"></div>
+
+  <!-- 立绘 -->
+  <div class="character-left" id="characterLeft" style="display:none">
+    <img id="charLeftImg" src="" alt="">
+    <span class="char-name" id="charLeftName"></span>
+  </div>
+  <div class="character-right" id="characterRight" style="display:none">
+    <img id="charRightImg" src="" alt="">
+    <span class="char-name" id="charRightName"></span>
+  </div>
+
+  <!-- 顶栏 -->
+  <div class="top-section">
+    <h1>故纸舟·赤壁</h1>
+    <div class="chapter-tag" id="chapterTag">· 卷上 · 江陵城外 ·</div>
+  </div>
+
+  <!-- 选项区 -->
+  <div class="mid-section">
+    <div class="options-area" id="optionsContainer"></div>
+  </div>
+
+  <!-- 对话区 -->
+  <div class="bottom-dialog">
+    <div class="story-area" id="storyText"></div>
+    <div class="continue-btn hidden" id="continueBtn">▶</div>
+  </div>
+
+  <!-- 状态栏 -->
+  <div class="footer">
+    <button class="reset-btn" id="autoPlayBtn">自动播放</button>
+    <span class="bgm-control" id="bgmToggle">🔊 江风</span>
+    <button class="reset-btn" id="resetBtn">重头再来</button>
+  </div>
+
+  <!-- 史书页 -->
+  <div class="history-screen" id="historyScreen">
+    <div class="history-text" id="historyText"></div>
+    <div class="history-options" id="historyOptions"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ================================================================
+ * 1. 数据层
+ * ================================================================ */
+
+const CDN = 'https://cdn.jsdelivr.net/gh/iriida/chibi@main/';  // 如需走 jsDelivr：'https://cdn.jsdelivr.net/gh/用户名/仓库名@main/'
+
+const FIGURES = {
+  liubei: {
+    name: '刘备',
+    years: '161-223',
+    desc: '刘备是三国时期蜀汉的开国皇帝，他原本家里很穷，但他待人宽厚，很讲义气，和关羽、张飞结拜成了生死兄弟。后来他三顾茅庐请出诸葛亮帮忙，在赤壁之战后慢慢有了自己的地盘，最后在成都当上了皇帝。',
+    book: [
+      '"天下英雄，唯使君与操耳。" —— 曹操评价，选自陈寿《三国志·蜀书·先主传》',
+      '"宽仁有度，能得众人死力。" —— 傅干评价，选自陈寿《三国志·蜀书·先主传》'
+    ],
+    folk: '营里老兵说，刘使君那人可仁义了，当年带着十几万老百姓逃难，走得慢也不肯丢下他们。还说他对兄弟特别好，身边的几个将军跟了他一辈子，到死都愿意跟着他。我想，能让那么多人死心塌地追随的人，应该差不了。'
+  },
+  caocao: {
+    name: '曹操',
+    years: '155-220',
+    desc: '字孟德，东汉末年政治家、军事家、文学家。他很会用人，只要有本事的人，不管出身高低他都愿意用。他还推行了"屯田"，就是让士兵在不打仗的时候种粮食，这样军队就不会饿肚子。他的儿子曹丕后来当了皇帝，追封他为魏武帝。',
+    book: [
+      '"治世之能臣，乱世之奸雄。" —— 范晔《后汉书·许劭传》',
+      '"抑可谓非常之人，超世之杰矣。" —— 陈寿《三国志·魏书·武帝纪第一》'
+    ],
+    folk: '那年我们在曹营，远远见过丞相一回。后来听人说丞相杀人很多，可也有人说他不坏。我搞不清。我只记得，那天远远瞧见他骑马过去，袍子被风吹得鼓鼓的，像个普通人骑在马上。'
+  },
+  guojia: {
+    name: '郭嘉',
+    years: '170-207',
+    desc: '字奉孝，颍川阳翟人。曹操身边一个很会出主意的人，他总是能帮曹操想到好办法，帮曹操打赢了很多仗。可惜他很年轻就生病去世了，死的时候才三十多岁。后来曹操打了败仗，经常念叨他。',
+    book: [
+      '"使孤成大业者，必此人也。" —— 曹操评价郭嘉，选自陈寿《三国志·魏书·郭嘉传》',
+      '"每有大议，临敌制变。臣策未决，嘉辄成之。平定天下，谋功为高。" —— 曹操追悼表章',
+      '"郭奉孝在，不使孤至此。" —— 曹操赤壁败后所说'
+    ],
+    folk: '听说郭嘉年纪轻轻就死了，要是他还活着，丞相说不定就不会打赤壁这场仗了。'
+  },
+  zhouyu: {
+    name: '周瑜',
+    years: '175-210',
+    desc: '字公瑾，东汉末年有名的将领，辅佐孙策、孙权平定江东。赤壁之战中任大都督，打败了曹操的军队。人长得帅，还精通音乐，待人宽厚，大家都叫他"周郎"。可惜三十六岁就病逝了。',
+    book: [
+      '"遥想公瑾当年，小乔初嫁了，雄姿英发。" —— 苏轼《念奴娇·赤壁怀古》',
+      '"周瑜、鲁肃建独断之明，出众人之表，实奇才也。" —— 陈寿《三国志》'
+    ],
+    folk: '营里有人传，东吴那个都督，打仗厉害，还懂音乐，听说他喝多了都能听出来谁弹错音，弹错了他就回头看一眼。'
+  },
+  zhugeliang: {
+    name: '诸葛亮',
+    years: '181-234',
+    desc: '字孔明，三国时期蜀汉丞相，杰出的政治家、军事家、发明家。刘备身边最聪明的军师，帮刘备打赢了很多仗。他发明过"木牛流马"运粮食，还做过能飞的"孔明灯"。他对刘备特别忠心，辅佐刘备建立蜀汉政权。',
+    book: [
+      '"三顾频烦天下计，两朝开济老臣心。" —— 杜甫《蜀相》',
+      '"出师未捷身先死，长使英雄泪满襟。" —— 杜甫《蜀相》'
+    ],
+    folk: '有回在江边搬草料，远远看见一群人围着一个摇扇子的人。老兵说那就是刘使君请来的军师，可厉害了，会呼风唤雨呢！听说他们两人天天在一块商量事儿，有时候聊到后半夜。我心想，这军师不睡觉的吗？'
+  }
+};
+
+// 立绘 URL 集中管理
+const CHARS = {
+  awang: { name: '阿望', image: CDN + 'images/awang.png' },
+  agua:  { name: '阿瓜', image: CDN + 'images/agua.png' }
+};
+
+const BG = {
+  fire:       CDN + 'images/fire.jpg',
+  crossroads: CDN + 'images/crossroads.jpg',
+  northCamp:  CDN + 'images/north_camp.jpg',
+  caocao:     CDN + 'images/caocao.jpg',
+  preBattle:  CDN + 'images/pre_battle.jpg',
+  preBattle1: CDN + 'images/pre_battle1.jpg',
+  defeat:     CDN + 'images/defeat.jpg',
+  morning:    CDN + 'images/morning.jpg',
+  river:      CDN + 'images/river.jpg',
+  escape:     CDN + 'images/escape.jpg',
+  southCamp:  CDN + 'images/south_camp.jpg',
+  zhouyu:     CDN + 'images/zhouyu.jpg',
+  zhuge:      CDN + 'images/zhuge.jpg',
+  victory:    CDN + 'images/victory.jpg',
+  cleanup:    CDN + 'images/cleanup.jpg',
+  cleanup1:   CDN + 'images/cleanup1.jpg',
+  riverside:  CDN + 'images/riverside.jpg',
+  northRuins: CDN + 'images/north_ruins.jpg',
+  teahouse:   CDN + 'images/teahouse.jpg'
+};
+
+const SCENES = {
+  /* ---------- 序 ---------- */
+  opening1: {
+    text: '公元208年，中国历史上叫"建安十三年"。这一年，北方最大的军阀曹操率领大军南下，想要统一整个中国。\n\n南方有两股力量——一个是刘备，一个叫孙权。他们决定联合起来，在长江边的赤壁对抗曹操。这就是历史上著名的"赤壁之战"。',
+    options: [{ nextScene: 'opening2' }],
+    bg: BG.fire
+  },
+  opening2: {
+    text: '你不是曹操，不是刘备，不是周瑜，也不是诸葛亮。你只是一个16岁的农家少年，叫阿望，住在江陵城外。战争来了，你失去了父亲，和邻村的伙伴阿瓜一起，踏上了流亡的路。\n\n你不知道这场战争谁会赢。你只知道，活下去。',
+    options: [{ nextScene: 'crossroads0' }],
+    bg: BG.fire
+  },
+  crossroads0: {
+    text: '你跟着同村人往南跑，想追上南行的队伍。跑了三天，鞋子烂了，脚底全是血口。\n\n你瘫坐在路边，阿瓜拽你袖子。',
+    options: [{ nextScene: 'crossroads1' }],
+    bg: BG.crossroads
+  },
+  crossroads1: {
+    text: '往南能追上刘使君，往北......听说那边管饭。',
+    options: [{ nextScene: 'crossroads' }],
+    rightChar: 'agua',
+    bg: BG.crossroads
+  },
+  crossroads: {
+    text: '官道上烟尘滚滚，南边是望不见头的难民队伍，北边是曹军辎重队的旗帜。',
+    options: [
+      { text: '【北行线】往北走，进曹营活命', nextScene: 'north_intro' },
+      { text: '【南行线】往南追，加入刘备的队伍', nextScene: 'south_intro' }
+    ],
+    popups: ['liubei', 'caocao'],
+    bg: BG.crossroads
+  },
+
+  /* ---------- 北线 ---------- */
+  north_intro: {
+    text: '你和阿瓜跟着辎重队往北走，管马料的什长见你们瘦，多掰了半块饼，于是你们被编入曹营辎重队。你们开始在江北驻扎，每天喂马、搬草、修补船帆。\n\n十月过去了，江边的风越来越冷。曹营里人越来越多，从北方来的兵说话口音你听不懂，但有一个词你总能听见——"丞相"。',
+    options: [{ nextScene: 'north_camp_life0' }],
+    bg: BG.northCamp
+  },
+  north_camp_life0: {
+    text: '有一天，你和阿瓜搬草料时，远远看见一群人骑马经过。有人指着中间那个穿红袍的说："那就是丞相。"你只看见一个背影，很快就被尘土遮住了。',
+    options: [{ nextScene: 'north_camp_life1' }],
+    bg: BG.caocao
+  },
+  north_camp_life1: {
+    text: '（小声）听说丞相手下能人可多了，有管钱粮的，有出主意的。可惜去年死了一个顶厉害的，不然......',
+    options: [{ nextScene: 'north_camp_life' }],
+    rightChar: 'agua',
+    bg: BG.caocao
+  },
+  north_camp_life: {
+    text: '不然什么？',
+    options: [{ nextScene: 'north_camp_life2' }],
+    leftChar: 'awang',
+    popup: 'guojia',
+    bg: BG.caocao
+  },
+  north_camp_life2: {
+    text: '（挠头）我也是听人说的，说要是那个人还在，丞相说不定就不会打这个仗了。',
+    options: [{ nextScene: 'north_before_battle' }],
+    rightChar: 'agua',
+    bg: BG.caocao
+  },
+  north_before_battle: {
+    text: '十一月初，营里开始忙起来。有人在江边造船，有人在磨刀枪。你听营里的老兵说对岸的敌军是江东的势力，还有刘使君的人，有个很厉害的都督，还有个军师，号称可以呼风唤雨。',
+    options: [{ nextScene: 'north_before_battle1' }],
+    bg: BG.preBattle
+  },
+  north_before_battle1: {
+    text: '(瞪大眼睛)呼风唤雨？那不成神仙了？',
+    options: [{ nextScene: 'north_before_battle2' }],
+    rightChar: 'agua',
+    bg: BG.preBattle
+  },
+  north_before_battle2: {
+    text: '一天夜里，你被一阵嘈杂声惊醒。有人喊："南船来了！"你和阿瓜爬到土坡上，看见江面上有火光，但很快就灭了。老兵说那是试探，真正的仗还没打。\n\n天气越来越冷，很多北方兵拉肚子，营里天天煮药。你听见什长叹气："这仗......不好打啊。"',
+    options: [{ nextScene: 'north_battle' }],
+    bg: BG.preBattle1
+  },
+  north_battle: {
+    text: '一天傍晚，江面起了东南风，很急。有人指着对岸说："有船过来了！"接着，你看见那些船突然烧起来，顺风直冲曹营水寨。\n\n整个江面红了。',
+    options: [{ nextScene: 'north_aftermath_choices' }],
+    bg: BG.fire
+  },
+  north_aftermath_choices: {
+    text: '你和阿瓜站在土坡上，江面通红，喊杀声隔水传来。身后有人喊"败了败了"，人群开始溃散。',
+    options: [
+      { text: 'A 留在江北，帮什长拢马', nextScene: 'north_aftermath_A' },
+      { text: 'B 趁乱往江边摸，找船过江', nextScene: 'north_aftermath_B' },
+      { text: 'C 不跑不渡，和什长一起等天亮', nextScene: 'north_aftermath_C' }
+    ],
+    bg: BG.defeat
+  },
+  north_aftermath_A: {
+    text: '什长带着你们收拢了几匹惊马，天快亮时，他叹了口气，指着南边："你们往那边走吧，过了江，活路多。"你们沿着他指的方向走了一天一夜，在江边遇上了刘备军的民夫队。',
+    options: [{ nextScene: 'ending0' }],
+    bg: BG.morning
+  },
+  north_aftermath_B: {
+    text: '你们抱着一块破船板漂了半夜，被江水冲到南岸的一片浅滩上。第二天晌午，一队出来砍柴的民夫发现了你们，把你们带回了营寨。',
+    options: [{ nextScene: 'ending0' }],
+    bg: BG.river
+  },
+  north_aftermath_C: {
+    text: '天亮后，什长带你们往南走。走了两天，在一处渡江口正遇上过江的民夫队。什长和管事的说了几句话，回头冲你们摆摆手："去吧，跟着他们能活。"',
+    options: [{ nextScene: 'ending0' }],
+    bg: BG.escape
+  },
+
+  /* ---------- 南线 ---------- */
+  south_intro: {
+    text: '你和阿瓜拼命往南追，追了七天，终于追上了刘备军的后队。你们被编入民夫队，负责运送粮草、修缮器械。\n\n十月里，你们跟着队伍往东走，退到樊口一带。这里离江边不远，经常能看见水师的船在江上巡弋。',
+    options: [{ nextScene: 'south_camp_life0' }],
+    bg: BG.southCamp
+  },
+  south_camp_life0: {
+    text: '有一天，你和阿瓜运草料时，看见江边站着一群人，为首的是个年轻将领，正在指挥船只。',
+    options: [{ nextScene: 'south_camp_life' }],
+    bg: BG.zhouyu
+  },
+  south_camp_life: {
+    text: '有人小声说："那就是周都督，江东的兵马都归他管。"',
+    options: [{ nextScene: 'south_camp_life1' }],
+    popup: 'zhouyu',
+    bg: BG.zhouyu
+  },
+  south_camp_life1: {
+    text: '几天后，营里来了个羽扇纶巾的人，跟都督说了很久的话。阿瓜打听回来，神秘兮兮地说：',
+    options: [{ nextScene: 'south_camp_life2' }],
+    bg: BG.zhuge
+  },
+  south_camp_life2: {
+    text: '那是刘使君请来的军师，听说会借东风！',
+    options: [{ nextScene: 'south_camp_life3' }],
+    rightChar: 'agua',
+    bg: BG.zhuge
+  },
+  south_camp_life3: {
+    text: '你真信？',
+    options: [{ nextScene: 'south_camp_life4' }],
+    leftChar: 'awang',
+    popup: 'zhugeliang',
+    bg: BG.zhuge
+  },
+  south_camp_life4: {
+    text: '(挠头)我也不知道......反正大家都这么说。',
+    options: [{ nextScene: 'south_battle' }],
+    rightChar: 'agua',
+    bg: BG.zhuge
+  },
+  south_battle: {
+    text: '一天傍晚，江面起了东南风，很急。都督下令出战。你和阿瓜站在江边，看着船队顺风驶向江北。快到对岸时，那些船突然烧起来，直冲曹营水寨。\n\n整个江面红了。',
+    options: [{ nextScene: 'south_aftermath_choices' }],
+    bg: BG.fire
+  },
+  south_aftermath_choices: {
+    text: '你和阿瓜站在江边，江面通红，欢呼声震天。有人喊"赢了赢了"，有人在江边跪下来磕头。',
+    options: [
+      { text: 'A 留在营中，帮民夫队收拾器械', nextScene: 'south_aftermath_A' },
+      { text: 'B 跑到江边，看战场打扫', nextScene: 'south_aftermath_B' },
+      { text: 'C 跟着队伍往江北去，看看那边什么样', nextScene: 'south_aftermath_C' }
+    ],
+    bg: BG.victory
+  },
+  south_aftermath_A: {
+    text: '你没去江边。营里乱糟糟的，到处是散落的箭矢、翻倒的粮车、来不及收起的帐篷。你和几个民夫一起把散落的器械归拢到一处，又帮着把伤员抬进棚子里。天快黑的时候，有人从江边回来，说曹营那边烧得啥都不剩了。',
+    options: [{ nextScene: 'south_aftermath_0' }],
+    bg: BG.cleanup
+  },
+  south_aftermath_0: {
+    text: '几天后，你和阿瓜随军进入江北，打扫战场。你们看见曹营留下的残迹，也看见很多没来得及走的北方兵被收编。',
+    options: [{ nextScene: 'ending0' }],
+    bg: BG.cleanup1
+  },
+  south_aftermath_B: {
+    text: '你和阿瓜跑到江边时，火已经熄了大半。江面上漂着烧焦的船板、破旗子、还有分不清是什么的东西。有人在岸边用长竿把飘过来的东西往岸边拨。你看见水边有只靴子，半截埋在泥里，靴筒上还沾着没烧完的布。你在江边站了很久，看着对岸还在冒烟的营寨。',
+    options: [{ nextScene: 'south_aftermath_0' }],
+    bg: BG.riverside
+  },
+  south_aftermath_C: {
+    text: '你跟着一队士兵上了渡船。江北的岸上比江南乱得多——烧塌的营帐、散落的兵器、还有没来得及跑的战马，在原地转着圈嘶鸣。几个北方兵蹲在一边，身上没穿甲，低着头，旁边站着两个拿刀的士兵。没人说话，就那么蹲着。你扭过头，跟着队伍往前走。',
+    options: [{ nextScene: 'ending0' }],
+    bg: BG.northRuins
+  },
+
+  /* ---------- 尾声 ---------- */
+  ending0: {
+    text: '建安二十三年，你已经二十六岁了。没当官，没战功，没死。你在江陵城外开了间小茶棚，南来北往的客商说书，讲到赤壁之战，讲周都督的英武、诸葛的神算、曹军如何败退。',
+    options: [{ nextScene: 'ending1' }],
+    isEnding: true,
+    bg: BG.teahouse
+  },
+  ending1: {
+    text: '你不插嘴。',
+    options: [{ nextScene: 'ending2' }],
+    isEnding: true,
+    bg: BG.teahouse
+  },
+  ending2: {
+    text: '偶尔有人问你："老丈，那年你在哪儿？"\n\n你说："在江边。"',
+    options: [{ nextScene: 'ending3' }],
+    isEnding: true,
+    bg: BG.teahouse
+  },
+  ending3: {
+    text: '阿瓜偶尔来喝茶，他现在是木匠，头发也白了。他坐在门槛上，忽然问："你还记得那年的事吗？"\n\n你点点头。',
+    options: [{ nextScene: 'ending4' }],
+    isEnding: true,
+    bg: BG.teahouse
+  },
+  ending4: {
+    text: '他问："要是当时选了另一边，会咋样？"',
+    options: [{ nextScene: 'ending' }],
+    isEnding: true,
+    bg: BG.teahouse
+  },
+  ending: {
+    text: '你看着江面，想了很久。\n\n江风吹过，你端起茶碗。\n\n（完）',
+    options: [{ nextScene: 'history' }],
+    isEnding: true,
+    bg: BG.teahouse
+  },
+  history: {
+    text: '建安十三年，曹操南下攻打孙刘联军。联军由周瑜当总指挥，和曹军隔江相望。战前，周瑜的部下黄盖向曹操假装投降，实则是为了铺垫后来的火攻。战争发动的那天，诸葛亮没有借东风，东南风起是自然原因。东吴的船队带着火光冲进曹营，而曹军又恰好把船绑在了一起，一时间火势更加猛烈，曹军大败，船只烧毁殆尽。这就是奠定下三国鼎立局面的赤壁之战。',
+    options: [{ text: '重头再来', nextScene: 'opening1' }],
+    isHistory: true
+  }
+};
+
+/* ================================================================
+ * 2. DOM 引用
+ * ================================================================ */
+
+const $ = id => document.getElementById(id);
+
+const dom = {
+  container:    $('gameContainer'),
+  cover:        $('coverScreen'),
+  startBtn:     $('startGameBtn'),
+  bgWind:       $('bgWind'),
+
+  popupOverlay: $('popupOverlay'),
+
+  charLeft:     $('characterLeft'),
+  charRight:    $('characterRight'),
+  charLeftImg:  $('charLeftImg'),
+  charRightImg: $('charRightImg'),
+  charLeftName: $('charLeftName'),
+  charRightName:$('charRightName'),
+
+  chapterTag:   $('chapterTag'),
+  options:      $('optionsContainer'),
+  story:        $('storyText'),
+  continueBtn:  $('continueBtn'),
+
+  autoPlayBtn:  $('autoPlayBtn'),
+  bgmToggle:    $('bgmToggle'),
+  resetBtn:     $('resetBtn'),
+
+  historyScreen: $('historyScreen'),
+  historyText:   $('historyText'),
+  historyOptions:$('historyOptions'),
+
+  topSection:   document.querySelector('.top-section'),
+  midSection:   document.querySelector('.mid-section'),
+  bottomDialog: document.querySelector('.bottom-dialog'),
+  footer:       document.querySelector('.footer'),
+  mask:         document.querySelector('.mask')
+};
+
+/* ================================================================
+ * 3. 状态
+ * ================================================================ */
+
+const state = {
+  sceneId: 'opening1',
+  route: 'none',
+  autoPlay: false,
+  bgmOn: false,
+  audioReady: false,
+  audio: null,
+  typeTimer: null,
+  typing: false,
+  typedHtml: ''
+};
+
+/* ================================================================
+ * 3.5 资源预加载 + 音频缓存池
+ * ================================================================
+ * 修复要点：
+ *   1. 加载前先 collectCriticalAssets() 统计总数，立即显示 "0 / N"
+ *   2. 并发限制为 4，每个资源完成时进度都推进，条子平滑
+ *   3. 用"已加载 / 总数"取代百分比，避免总数变化时跳变
+ *   4. 剩余资源后台静默加载，不动进度条
+ *   5. 音频预加载和播放共用 audioCache，不再各自 new
+ *   6. 加载文案分阶段变化，贴合渡江叙事
+ * ================================================================ */
+
+const audioCache = new Map();
+
+function getAudioUrl(id) {
+  const ext = AUDIO_EXT[id] || '.m4a';
+  return `${CDN}sounds/${id}${ext}`;
+}
+
+function acquireAudio(id) {
+  let audio = audioCache.get(id);
+  if (audio) return audio;
+  audio = new Audio();
+  audio.preload = 'auto';
+  audio.src = getAudioUrl(id);
+  audio.load();
+  audioCache.set(id, audio);
+  return audio;
+}
+
+/* ---------- 进度显示 ---------- */
+let _loadingTotal = 0;
+let _loadingDone = 0;
+
+const LOADING_LABELS = [
+  { min: 0,    text: '江畔解缆，船家正备' },
+  { min: 0.25, text: '船夫松开缆绳，江风涌入帆' },
+  { min: 0.5,  text: '桨划过水面，涟漪一圈圈散开' },
+  { min: 0.75, text: '两岸山影，从雾里浮出来' },
+  { min: 0.95, text: '渡口依稀，江声渐近' }
+];
+
+function getLoadingLabel(done, total) {
+  if (total === 0) return LOADING_LABELS[0].text;
+  if (done >= total) return '可以登舟了';
+  const pct = done / total;
+  let label = LOADING_LABELS[0].text;
+  for (const item of LOADING_LABELS) {
+    if (pct >= item.min) label = item.text;
+  }
+  return label;
+}
+
+function updateLoadingProgress(doneVal) {
+  const pct = _loadingTotal > 0 ? Math.round((doneVal / _loadingTotal) * 100) : 0;
+  const bar = document.getElementById('loadingBar');
+  const text = document.getElementById('loadingText');
+  if (bar) bar.style.width = pct + '%';
+  if (text) {
+    const doneInt = Math.floor(doneVal);
+    const label = getLoadingLabel(doneInt, _loadingTotal);
+    text.textContent = _loadingTotal > 0
+      ? `${label}　${doneInt} / ${_loadingTotal}`
+      : label;
+  }
+}
+
+/* ---------- 单个资源加载 ---------- */
+function loadOneAsset(item, onItemProgress) {
+  return new Promise(resolve => {
+    if (item.type === 'img') {
+      const img = new Image();
+      img.onload = img.onerror = () => { if (onItemProgress) onItemProgress(1); resolve(); };
+      img.src = item.url;
+    } else {
+      const audio = acquireAudio(item.id);
+      if (audio.readyState >= 4) { if (onItemProgress) onItemProgress(1); resolve(); return; }
+      const done = () => resolve();
+      audio.addEventListener('canplaythrough', done, { once: true });
+      audio.addEventListener('error', done, { once: true });
+      if (onItemProgress) {
+        const report = () => {
+          if (audio.buffered.length > 0 && isFinite(audio.duration) && audio.duration > 0) {
+            const end = audio.buffered.end(audio.buffered.length - 1);
+            onItemProgress(Math.min(end / audio.duration, 1));
+          }
+        };
+        const cleanup = () => {
+          audio.removeEventListener('progress', report);
+          audio.removeEventListener('loadedmetadata', report);
+        };
+        audio.addEventListener('progress', report);
+        audio.addEventListener('loadedmetadata', report);
+        audio.addEventListener('canplaythrough', cleanup, { once: true });
+        audio.addEventListener('error', cleanup, { once: true });
+      }
+    }
+  });
+}
+
+/* ---------- 限制并发的队列加载 ---------- */
+function loadQueue(items, concurrency, onProgress) {
+  return new Promise(resolve => {
+    let index = 0;
+    let active = 0;
+    let done = 0;
+    const total = items.length;
+    const partial = new Array(total).fill(0);
+
+    if (total === 0) { resolve(); return; }
+
+    function report() {
+      if (!onProgress) return;
+      let sum = done;
+      for (let i = 0; i < total; i++) sum += partial[i];
+      onProgress(sum, total);
+    }
+
+    function next() {
+      if (done >= total) { resolve(); return; }
+      while (active < concurrency && index < total) {
+        const i = index++;
+        const item = items[i];
+        active++;
+        loadOneAsset(item, frac => {
+          partial[i] = Math.min(frac, 1);
+          report();
+        }).then(() => {
+          partial[i] = 0;
+          active--;
+          done++;
+          report();
+          next();
+        });
+      }
+    }
+    next();
+  });
+}
+
+/* ---------- 收集资源清单 ---------- */
+function collectCriticalAssets() {
+  const list = [];
+  const seen = new Set();
+
+  // 立绘
+  Object.values(CHARS).forEach(c => {
+    if (c.image && !seen.has(c.image)) {
+      seen.add(c.image);
+      list.push({ type: 'img', url: c.image });
+    }
+  });
+
+  // 所有背景（去重）
+  Object.values(BG).forEach(url => {
+    if (url && !seen.has(url)) {
+      seen.add(url);
+      list.push({ type: 'img', url });
+    }
+  });
+
+  // 关键音频
+  const criticalScenes = ['opening1', 'opening2', 'crossroads0', 'crossroads1', 'crossroads'];
+  criticalScenes.forEach(id => {
+    if (!seen.has('audio:' + id)) {
+      seen.add('audio:' + id);
+      list.push({ type: 'audio', id });
+    }
+  });
+
+  return list;
+}
+
+function collectRemainingAssets() {
+  const criticalSet = new Set(['opening1', 'opening2', 'crossroads0', 'crossroads1', 'crossroads']);
+  const list = [];
+  Object.keys(SCENES).forEach(id => {
+    if (id !== 'history' && !criticalSet.has(id)) {
+      list.push({ type: 'audio', id });
+    }
+  });
+  return list;
+}
+
+function loadCriticalAssets() {
+  const items = collectCriticalAssets();
+  _loadingTotal = items.length;
+  _loadingDone = 0;
+  updateLoadingProgress(0);
+
+  return loadQueue(items, 6, (done, total) => {
+    _loadingDone = done;
+    _loadingTotal = total;
+    updateLoadingProgress(done);
+  });
+}
+
+function loadRemainingAssets() {
+  const items = collectRemainingAssets();
+  if (!items.length) return Promise.resolve();
+  return loadQueue(items, 2, null);
+}
+
+/* ---------- 运行时按需预加载 ---------- */
+const _imgPreloaded = new Set();
+
+function preloadImg(url) {
+  if (!url || _imgPreloaded.has(url)) return Promise.resolve();
+  _imgPreloaded.add(url);
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = img.onerror = () => resolve();
+    img.src = url;
+  });
+}
+
+function preloadScene(sceneId) {
+  const scene = SCENES[sceneId];
+  if (!scene) return;
+  if (scene.bg) preloadImg(scene.bg);
+  if (scene.leftChar && CHARS[scene.leftChar]) preloadImg(CHARS[scene.leftChar].image);
+  if (scene.rightChar && CHARS[scene.rightChar]) preloadImg(CHARS[scene.rightChar].image);
+  acquireAudio(sceneId);
+}
+
+function preloadAhead(sceneId, depth = 2) {
+  preloadScene(sceneId);
+  if (depth <= 0) return;
+  const scene = SCENES[sceneId];
+  if (!scene || !scene.options) return;
+  scene.options.forEach(opt => {
+    preloadScene(opt.nextScene);
+    const nextScene = SCENES[opt.nextScene];
+    if (nextScene && nextScene.options) {
+      nextScene.options.forEach(opt2 => preloadScene(opt2.nextScene));
+    }
+  });
+}
+
+/* ================================================================
+ * 4. 音频
+ * ================================================================ */
+
+// wind 与其他音频统一使用 .m4a
+const AUDIO_EXT = {};
+
+function stopAudio() {
+  if (!state.audio) return;
+  const audio = state.audio;
+  try {
+    audio.pause();
+    audio.currentTime = 0;
+  } catch (e) {}
+  audio.onended = null;
+  audio.onerror = null;
+  state.audio = null;
+}
+
+/**
+ * 播放一句台词。从缓存池取 Audio，不再 new。
+ * 若音频已就绪，直接播；否则等 canplay 事件，去掉 setTimeout 兜底。
+ */
+function playAudio(id, onEnd) {
+  stopAudio();
+  const audio = acquireAudio(id);
+
+  const finish = () => {
+    if (state.audio === audio) state.audio = null;
+    if (onEnd) onEnd();
+  };
+
+  audio.onended = finish;
+  audio.onerror = () => {
+    console.log('音频加载/播放出错:', id);
+    finish();
+  };
+
+  try { audio.currentTime = 0; } catch (e) {}
+
+  state.audio = audio;
+
+  const tryPlay = () => {
+    if (state.audio !== audio) return;
+    const p = audio.play();
+    if (p && p.catch) {
+      p.catch(err => {
+        console.log('播放失败:', id, err);
+        finish();
+      });
+    }
+  };
+
+  if (audio.readyState >= 3) {
+    tryPlay();
+  } else {
+    audio.addEventListener('canplay', tryPlay, { once: true });
+  }
+}
+
+/* ================================================================
+ * 5. 打字机
+ * ================================================================ */
+
+function stopTyping() {
+  clearInterval(state.typeTimer);
+  state.typeTimer = null;
+  state.typing = false;
+}
+
+function typeText(elements, paragraphs, speed, onDone) {
+  stopTyping();
+  state.typing = true;
+  elements.forEach(el => el.textContent = '');
+
+  let paraIndex = 0;
+  let charIndex = 0;
+
+  state.typeTimer = setInterval(() => {
+    if (paraIndex >= paragraphs.length) {
+      stopTyping();
+      onDone && onDone();
+      return;
+    }
+    const el = elements[paraIndex];
+    const text = paragraphs[paraIndex];
+
+    if (charIndex < text.length) {
+      el.textContent += text[charIndex++];
+      dom.story.scrollTop = dom.story.scrollHeight;
+    } else {
+      paraIndex++;
+      charIndex = 0;
+    }
+  }, speed);
+}
+
+function finishTyping() {
+  if (!state.typing) return;
+  stopTyping();
+  dom.story.innerHTML = state.typedHtml;
+}
+
+/* ================================================================
+ * 6. 浮窗
+ * ================================================================ */
+
+function showPopups(items, done) {
+  if (!items.length) { done && done(); return; }
+
+  const key = items.shift();
+  const fig = FIGURES[key];
+  if (!fig) { showPopups(items, done); return; }
+
+  finishTyping();
+  stopAudio();
+  hideInteractions();
+
+  const card = document.createElement('div');
+  card.className = 'popup-card';
+
+  const bookHtml = fig.book && fig.book.length
+    ? `<div class="section"><strong>书中记：</strong><br>${fig.book.join('<br>')}</div>`
+    : '';
+
+  card.innerHTML = `
+    <span class="close-icon">✕</span>
+    <h3>${fig.name} (${fig.years || ''})</h3>
+    <div class="sub">${fig.desc}</div>
+    ${bookHtml}
+    <div class="section"><strong>百姓说：</strong> ${fig.folk}</div>
+    <div style="margin-top:.6rem;text-align:right;">
+      <span class="voice-icon">🔊 朗读中...</span>
+    </div>
+  `;
+
+  dom.popupOverlay.innerHTML = '';
+  dom.popupOverlay.appendChild(card);
+  dom.popupOverlay.classList.add('active');
+
+  const sceneAtOpen = state.sceneId;
+
+  const close = () => {
+    stopAudio();
+    dom.popupOverlay.classList.remove('active');
+    dom.popupOverlay.innerHTML = '';
+    const scene = SCENES[sceneAtOpen];
+    if (scene) restoreInteractions(scene);
+    alignCharacters();
+    showPopups(items, done);
+  };
+
+  card.querySelector('.close-icon').onclick = e => {
+    e.stopPropagation();
+    close();
+  };
+  dom.popupOverlay.onclick = e => {
+    if (e.target === dom.popupOverlay) close();
+  };
+
+  playAudio(key, close);
+}
+
+/* ================================================================
+ * 7. 界面工具
+ * ================================================================ */
+
+function hideInteractions() {
+  dom.options.style.display = 'none';
+  dom.continueBtn.classList.add('hidden');
+}
+
+function restoreInteractions(scene) {
+  if (scene.options && scene.options.length === 1) {
+    dom.options.style.display = 'none';
+    dom.continueBtn.classList.remove('hidden');
+  } else {
+    dom.options.style.display = 'flex';
+    dom.continueBtn.classList.add('hidden');
+  }
+}
+
+function alignCharacters() {
+  const dialogRect = dom.bottomDialog.getBoundingClientRect();
+  const containerRect = dom.container.getBoundingClientRect();
+  const bottomValue = containerRect.bottom - dialogRect.top + 'px';
+
+  if (dom.charLeft.style.display !== 'none')  dom.charLeft.style.bottom = bottomValue;
+  if (dom.charRight.style.display !== 'none') dom.charRight.style.bottom = bottomValue;
+}
+
+function updateCharacters(leftKey, rightKey) {
+  const setSide = (side, key) => {
+    const wrap = side === 'left' ? dom.charLeft : dom.charRight;
+    const img  = side === 'left' ? dom.charLeftImg : dom.charRightImg;
+    const name = side === 'left' ? dom.charLeftName : dom.charRightName;
+    if (!key) { wrap.style.display = 'none'; return; }
+    const char = CHARS[key];
+    img.src = char.image;
+    name.textContent = char.name;
+    wrap.style.display = 'flex';
+  };
+  setSide('left', leftKey);
+  setSide('right', rightKey);
+}
+
+function splitText(text) {
+  const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim() !== '');
+  const html = paragraphs
+    .map(p => `<p>${p.split('\n').filter(l => l.trim()).join('<br>')}</p>`)
+    .join('');
+  return { html: html || '<p></p>', paragraphs };
+}
+
+/* ================================================================
+ * 8. 场景渲染
+ * ================================================================ */
+
+function maybeAutoContinue(scene) {
+  if (!state.autoPlay) return;
+  if (!scene.options || scene.options.length !== 1) return;
+  setTimeout(() => {
+    if (!dom.continueBtn.classList.contains('hidden')) dom.continueBtn.click();
+  }, 500);
+}
+
+function renderOptions(scene) {
+  dom.options.innerHTML = '';
+  dom.continueBtn.classList.add('hidden');
+
+  if (scene.options.length === 1) {
+    dom.options.style.display = 'none';
+    dom.continueBtn.classList.remove('hidden');
+    dom.continueBtn.onclick = () => {
+      if (state.typing) { finishTyping(); return; }
+      displayScene(scene.options[0].nextScene);
+    };
+  } else {
+    dom.options.style.display = 'flex';
+    scene.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt.text;
+      btn.onclick = () => {
+        finishTyping();
+        displayScene(opt.nextScene);
+      };
+      dom.options.appendChild(btn);
+    });
+  }
+}
+
+function showHistory(scene) {
+  stopAudio();
+  [dom.mask, dom.topSection, dom.midSection, dom.bottomDialog,
+   dom.footer, dom.charLeft, dom.charRight].forEach(el => el.style.display = 'none');
+
+  dom.historyText.textContent = scene.text;
+  dom.historyOptions.innerHTML = '';
+  scene.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'history-btn';
+    btn.textContent = opt.text;
+    btn.onclick = () => displayScene(opt.nextScene);
+    dom.historyOptions.appendChild(btn);
+  });
+  dom.historyScreen.classList.add('active');
+}
+
+function hideHistory() {
+  dom.historyScreen.classList.remove('active');
+  dom.mask.style.display = 'block';
+  dom.topSection.style.display = 'block';
+  dom.midSection.style.display = 'flex';
+  dom.bottomDialog.style.display = 'flex';
+  dom.footer.style.display = 'flex';
+}
+
+function displayScene(sceneId) {
+  const scene = SCENES[sceneId];
+  if (!scene) return;
+
+  preloadAhead(sceneId);
+
+  state.sceneId = sceneId;
+  stopAudio();
+  stopTyping();
+
+  if (scene.isHistory) {
+    showHistory(scene);
+    return;
+  }
+  hideHistory();
+
+  dom.popupOverlay.classList.remove('active');
+  dom.popupOverlay.innerHTML = '';
+
+  if (scene.bg) {
+    dom.container.style.backgroundImage = `url('${scene.bg}')`;
+    dom.container.style.backgroundColor = 'transparent';
+  } else {
+    dom.container.style.backgroundImage = 'none';
+    dom.container.style.backgroundColor = '#f8f0e2';
+  }
+
+  updateChapterTag(sceneId);
+
+  updateCharacters(scene.leftChar, scene.rightChar);
+  setTimeout(alignCharacters, 10);
+
+  let mainText = scene.text;
+  if (sceneId === 'ending2') {
+    if (state.route === 'north') {
+      mainText += '\n\n（你想起那个什长、那半块饼、那个穿着红袍的丞相背影）';
+    } else if (state.route === 'south') {
+      mainText += '\n\n（你想起周瑜和诸葛亮的身影，江边那场火）';
+    }
+  }
+
+  const { html, paragraphs } = splitText(mainText);
+  state.typedHtml = html;
+  dom.story.innerHTML = '';
+  const elements = paragraphs.map(() => {
+    const p = document.createElement('p');
+    dom.story.appendChild(p);
+    return p;
+  });
+
+  const popups = sceneId === 'crossroads'
+    ? ['liubei', 'caocao']
+    : scene.popup
+      ? (Array.isArray(scene.popup) ? scene.popup : [scene.popup])
+      : [];
+
+  playAudio(sceneId, () => maybeAutoContinue(scene));
+
+  typeText(elements, paragraphs, 30, () => {
+    if (popups.length) {
+      showPopups(popups.slice(), () => {
+        playAudio(sceneId, () => maybeAutoContinue(scene));
+      });
+    }
+  });
+
+  renderOptions(scene);
+  if (popups.length) {
+    setTimeout(() => showPopups(popups.slice(), () => {
+      playAudio(sceneId, () => maybeAutoContinue(scene));
+    }), 400);
+  }
+}
+
+function updateChapterTag(sceneId) {
+  if (sceneId.startsWith('north')) {
+    state.route = 'north';
+    dom.chapterTag.textContent = '· 江北篇 ·';
+  } else if (sceneId.startsWith('south')) {
+    state.route = 'south';
+    dom.chapterTag.textContent = '· 江南篇 ·';
+  } else if (['opening1', 'opening2', 'crossroads0', 'crossroads1', 'crossroads'].includes(sceneId)) {
+    state.route = 'none';
+    dom.chapterTag.textContent = '· 卷上 · 江陵城外 ·';
+  } else if (sceneId === 'ending') {
+    dom.chapterTag.textContent = '· 尾声 · 江边茶棚 ·';
+  }
+}
+
+/* ================================================================
+ * 9. 重置 / 事件绑定 / 初始化
+ * ================================================================ */
+
+function resetGame() {
+  stopAudio();
+  stopTyping();
+
+  dom.popupOverlay.classList.remove('active');
+  dom.popupOverlay.innerHTML = '';
+  dom.historyScreen.classList.remove('active');
+  dom.cover.style.display = 'flex';
+  dom.cover.classList.remove('fade-out');
+
+  state.route = 'none';
+  state.sceneId = 'opening1';
+
+  displayScene('opening1');
+}
+
+function bindEvents() {
+  window.addEventListener('resize', alignCharacters);
+
+  dom.startBtn.addEventListener('click', () => {
+    if (!state.audioReady) {
+      dom.bgWind.play()
+        .then(() => { state.audioReady = true; state.bgmOn = true; })
+        .catch(err => console.log('背景音播放失败:', err));
+    }
+    dom.cover.classList.add('fade-out');
+    setTimeout(() => {
+      dom.cover.style.display = 'none';
+      displayScene('opening1');
+    }, 800);
+  });
+
+  dom.bgmToggle.addEventListener('click', () => {
+    state.bgmOn = !state.bgmOn;
+    if (state.bgmOn) {
+      dom.bgWind.play().catch(err => console.log('背景音播放失败:', err));
+      dom.bgmToggle.textContent = '🔊 江风';
+    } else {
+      dom.bgWind.pause();
+      dom.bgmToggle.textContent = '🔇 江风(静)';
+    }
+  });
+
+  dom.autoPlayBtn.addEventListener('click', () => {
+    state.autoPlay = !state.autoPlay;
+    dom.autoPlayBtn.textContent = state.autoPlay ? '自动播放中' : '自动播放';
+  });
+
+  dom.resetBtn.addEventListener('click', resetGame);
+}
+
+window.addEventListener('load', () => {
+  bindEvents();
+
+  _loadingTotal = 0;
+  _loadingDone = 0;
+  updateLoadingProgress(0);
+
+  loadCriticalAssets().then(() => {
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+      loadingScreen.classList.add('fade-out');
+      setTimeout(() => loadingScreen.style.display = 'none', 500);
+    }
+    dom.cover.style.display = 'flex';
+    dom.cover.classList.remove('fade-out');
+
+    loadRemainingAssets();
+  });
+
+  dom.bgWind.load();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.log('SW注册失败:', err);
+    });
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+<title>故纸舟 · 互动历史故事</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css" />
+<style>
+/* ================= 基础 ================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper: #f5efe0;
+  --paper-deep: #eae0c9;
+  --ink: #2f3a30;
+  --ink-soft: #4c564a;
+  --muted: #6f6959;
+  --seal: #a93226;
+  --gold: #b08d57;
+}
+
+html, body { min-height: 100%; }
+
+body {
+  font-family: "LXGW WenKai", "霞鹜文楷", "KaiTi", "楷体", "STKaiti", serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 18% 8%, rgba(255, 250, 240, .9) 0%, rgba(245, 239, 224, 0) 45%),
+    radial-gradient(ellipse at 85% 15%, rgba(235, 226, 205, .8) 0%, rgba(245, 239, 224, 0) 50%),
+    linear-gradient(180deg, #f7f2e5 0%, #f1e9d6 55%, #e9dfc8 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* 纸张纹理（噪点，极轻） */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.36 0 0 0 0 0.25 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+/* ================= 水墨山峦背景 ================= */
+.landscape {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 46vh;
+  min-height: 260px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mist { animation: mistDrift 26s ease-in-out infinite alternate; transform-origin: center; }
+.mist.slow { animation-duration: 40s; animation-delay: -12s; }
+
+@keyframes mistDrift {
+  from { transform: translateX(-1.6%); }
+  to   { transform: translateX(1.6%); }
+}
+
+@keyframes birdFloat {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(14px, -10px); }
+}
+.bird { animation: birdFloat 9s ease-in-out infinite; }
+.bird.b2 { animation-delay: -4s; }
+
+/* ================= 页面骨架 ================= */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 2.2rem 1.4rem 4.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ================= 顶栏 ================= */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+}
+
+.brand-logo {
+  width: 52px; height: 52px;
+  flex: none;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(120, 110, 85, .45);
+  box-shadow: 0 2px 8px rgba(80, 70, 50, .22), 0 0 0 1px rgba(255,255,255,.5) inset;
+}
+
+.brand h1 {
+  font-size: 2rem;
+  letter-spacing: .35em;
+  font-weight: 600;
+}
+
+.brand .sub {
+  margin-top: .15rem;
+  font-size: .8rem;
+  letter-spacing: .28em;
+  color: var(--muted);
+}
+
+.sound-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .45rem .9rem;
+  border: 1px solid rgba(47, 58, 48, .35);
+  border-radius: 999px;
+  background: rgba(255, 252, 244, .55);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: .85rem;
+  letter-spacing: .12em;
+  cursor: pointer;
+  transition: all .25s;
+  backdrop-filter: blur(3px);
+}
+.sound-btn:hover { border-color: var(--ink-soft); background: rgba(255, 252, 244, .85); }
+.sound-btn svg { width: 15px; height: 15px; }
+.sound-btn.on { color: var(--seal); border-color: var(--seal); }
+
+/* ================= 卷首 ================= */
+.hero {
+  text-align: center;
+  margin: 3.2rem 0 2.6rem;
+}
+
+.hero .slogan {
+  display: inline-block;
+  padding: .3rem 1.2rem;
+  font-size: .82rem;
+  letter-spacing: .45em;
+  color: var(--muted);
+  border-top: 1px solid rgba(47, 58, 48, .25);
+  border-bottom: 1px solid rgba(47, 58, 48, .25);
+}
+
+.hero h2 {
+  margin-top: 1.6rem;
+  font-size: 2.3rem;
+  letter-spacing: .4em;
+  font-weight: 600;
+}
+
+.hero p {
+  margin: 1rem auto 0;
+  max-width: 34em;
+  font-size: .95rem;
+  line-height: 2;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+/* ================= 副本卡片 ================= */
+.game-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.2rem;
+  margin-top: 1rem;
+}
+
+.game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 252, 244, .72);
+  border: 1px solid rgba(120, 110, 85, .4);
+  border-radius: 10px;
+  padding: 1rem 1rem 1.25rem;
+  box-shadow: 0 10px 30px rgba(80, 70, 50, .12), 0 0 0 1px rgba(255,255,255,.4) inset;
+  transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+  outline: none;
+}
+.game-card:hover, .game-card:focus-visible {
+  transform: translateY(-6px);
+  border-color: rgba(169, 50, 38, .55);
+  box-shadow: 0 18px 44px rgba(80, 70, 50, .2), 0 0 0 1px rgba(255,255,255,.45) inset;
+}
+.game-card:focus-visible { outline: 2px solid var(--seal); outline-offset: 3px; }
+
+/* 卷轴画框 */
+.scroll-frame {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e8dfc9;
+  box-shadow: 0 0 0 1px rgba(120, 110, 85, .35) inset;
+}
+.scroll-frame .cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  transition: transform .6s ease;
+  filter: saturate(.92) contrast(.98);
+}
+.game-card:hover .cover { transform: scale(1.045); }
+
+.scroll-bar {
+  height: 9px;
+  background: linear-gradient(180deg, #8a6f4a 0%, #6b5134 45%, #4e3a22 100%);
+  box-shadow: 0 1px 3px rgba(60, 45, 20, .4);
+}
+.scroll-bar.bottom {
+  background: linear-gradient(0deg, #8a6f4a 0%, #6b5134 45%, #4e3a22 100%);
+}
+
+/* 副本序号角标 */
+.order-badge {
+  position: absolute;
+  top: 10px; left: 10px;
+  padding: .2rem .55rem;
+  font-size: .8rem;
+  letter-spacing: .1em;
+  color: #fff;
+  background: rgba(47, 58, 48, .72);
+  border-radius: 4px;
+  backdrop-filter: blur(2px);
+  z-index: 1;
+}
+
+/* 卡片信息 */
+.card-info {
+  padding: 1rem .3rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  flex: 1;
+}
+
+.card-tag {
+  align-self: flex-start;
+  font-size: .74rem;
+  letter-spacing: .22em;
+  color: var(--seal);
+  border: 1px solid rgba(169, 50, 38, .5);
+  border-radius: 3px;
+  padding: .12rem .55rem;
+}
+
+.card-info h3 {
+  font-size: 1.45rem;
+  letter-spacing: .22em;
+  font-weight: 600;
+}
+
+.card-info .subtitle {
+  font-size: .8rem;
+  letter-spacing: .18em;
+  color: var(--muted);
+}
+
+.card-info .desc {
+  font-size: .9rem;
+  line-height: 1.9;
+  letter-spacing: .05em;
+  color: var(--ink-soft);
+}
+
+.enter {
+  margin-top: auto;
+  padding-top: .8rem;
+  font-size: .88rem;
+  letter-spacing: .25em;
+  color: var(--seal);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.enter .arrow { transition: transform .3s ease; }
+.game-card:hover .enter .arrow { transform: translateX(6px); }
+
+/* ================= 页脚 ================= */
+footer {
+  margin-top: auto;
+  padding-top: 3.5rem;
+  text-align: center;
+  font-size: .78rem;
+  letter-spacing: .2em;
+  color: var(--muted);
+  line-height: 2;
+}
+
+/* ================= 淡出遮罩 ================= */
+#pageFade {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #f2ecdc;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .45s ease;
+}
+#pageFade.show { opacity: 1; pointer-events: auto; }
+
+/* ================= 响应式 ================= */
+@media (min-width: 760px) {
+  .game-grid { grid-template-columns: repeat(2, 1fr); gap: 2.6rem; }
+  .hero { margin: 4rem 0 3rem; }
+  .hero h2 { font-size: 2.8rem; }
+  .scroll-frame .cover { aspect-ratio: 16 / 11; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mist, .bird { animation: none; }
+  .game-card, .scroll-frame .cover { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- 水墨山峦 -->
+<svg class="landscape" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7f2e5" stop-opacity="0"/>
+      <stop offset="1" stop-color="#e6dcc3" stop-opacity=".9"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfc7ae"/>
+      <stop offset="1" stop-color="#b9b096"/>
+    </linearGradient>
+    <filter id="blurMist" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="420" fill="url(#sky)"/>
+
+  <!-- 红日 -->
+  <circle cx="1150" cy="120" r="34" fill="#a93226" opacity=".72"/>
+
+  <!-- 远山 -->
+  <path d="M0 250 L120 205 L215 240 L330 185 L445 235 L560 195 L690 245 L810 200 L930 240 L1050 190 L1180 235 L1300 205 L1440 245 L1440 420 L0 420 Z"
+        fill="#8a9380" opacity=".4"/>
+  <!-- 中山 -->
+  <path d="M0 290 L150 250 L260 285 L400 230 L520 285 L660 240 L790 290 L930 245 L1060 285 L1190 250 L1320 290 L1440 265 L1440 420 L0 420 Z"
+        fill="#6f7a68" opacity=".55"/>
+  <!-- 近山 -->
+  <path d="M0 340 L110 300 L230 345 L380 285 L510 345 L650 300 L790 350 L950 300 L1100 348 L1260 305 L1440 342 L1440 420 L0 420 Z"
+        fill="#4c564a" opacity=".7"/>
+
+  <!-- 雾 -->
+  <g class="mist" filter="url(#blurMist)">
+    <ellipse cx="380" cy="300" rx="360" ry="38" fill="#f5efe0" opacity=".5"/>
+    <ellipse cx="980" cy="330" rx="420" ry="44" fill="#f5efe0" opacity=".42"/>
+  </g>
+  <g class="mist slow" filter="url(#blurMist)">
+    <ellipse cx="700" cy="380" rx="520" ry="40" fill="#efe7d2" opacity=".55"/>
+  </g>
+
+  <!-- 水面 -->
+  <rect y="385" width="1440" height="35" fill="url(#water)" opacity=".85"/>
+  <g stroke="#8b856f" stroke-width="1.4" opacity=".5">
+    <path d="M80 398 h120 M300 404 h160 M560 396 h140 M820 405 h170 M1080 397 h150 M1280 404 h100" stroke-linecap="round"/>
+  </g>
+
+  <!-- 扁舟 -->
+  <g opacity=".75">
+    <path d="M150 366 q46 -22 92 0 l-10 8 q-36 -16 -72 0 Z" fill="#3d4438"/>
+    <line x1="196" y1="366" x2="196" y2="330" stroke="#3d4438" stroke-width="2.4"/>
+    <path d="M196 330 l26 14 -26 12 Z" fill="#3d4438"/>
+    <circle cx="166" cy="368" r="4.5" fill="#3d4438"/>
+  </g>
+
+  <!-- 飞鸟 -->
+  <g class="bird" stroke="#4c564a" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".7">
+    <path d="M820 150 q10 -12 20 0 q10 -12 20 0"/>
+  </g>
+  <g class="bird b2" stroke="#4c564a" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".6">
+    <path d="M880 175 q8 -10 16 0 q8 -10 16 0"/>
+  </g>
+</svg>
+
+<div class="page">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="./images/logo.jpg" alt="故纸舟" />
+      <div>
+        <h1>故纸舟</h1>
+        <div class="sub">互动历史故事</div>
+      </div>
+    </div>
+    <button class="sound-btn" id="soundBtn" aria-pressed="false" aria-label="开关背景音">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+        <path id="soundWave" d="M15.5 8.5a5 5 0 0 1 0 7" opacity="0"/>
+      </svg>
+      <span id="soundText">启音</span>
+    </button>
+  </header>
+
+  <section class="hero">
+    <span class="slogan">以声为舟 · 以史为河</span>
+    <h2>副本大厅</h2>
+    <p>选一卷故事，入一段历史。你的每一次选择，都会在故纸堆里留下一道新的折痕。</p>
+  </section>
+
+  <main class="game-grid" id="gameGrid"></main>
+
+  <footer>
+    泛舟故纸堆 · 互动历史故事<br>
+    声音与选择，让历史重新呼吸
+  </footer>
+</div>
+
+<div id="pageFade" aria-hidden="true"></div>
+
+<noscript>
+  <style>.game-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }</style>
+  <div style="padding:1rem;border:1px solid #8a7f66;border-radius:8px;">
+    <a href="./chibi/index.html">赤壁</a>
+  </div>
+  <div style="padding:1rem;border:1px solid #8a7f66;border-radius:8px;">
+    <a href="./runzhou/index.html">润州小茶童</a>
+  </div>
+</noscript>
+
+<script>
+/* ============================================================
+ * 副本配置 —— 添加新剧本：
+ * 1. 把剧本文件夹放进本站目录（如 ./myscript/）
+ * 2. 在 GAMES 数组里加一条 { id, title, subtitle, path, cover, tag, desc }
+ * ============================================================ */
+const GAMES = [
+  {
+    id: 'chibi',
+    order: '壹',
+    title: '赤壁',
+    subtitle: '烽火连天 · 三国风云',
+    path: './chibi/index.html',
+    cover: './chibi/images/fire.jpg',
+    tag: '三国 · 赤壁之战',
+    desc: '你不是曹操，不是刘备，不是周瑜。你只是江陵城外一个十六岁的农家少年阿望。战火将起，活下去，是你唯一知道的事。'
+  },
+  {
+    id: 'runzhou',
+    order: '贰',
+    title: '润州小茶童',
+    subtitle: '金山寺下 · 江心茶馆',
+    path: './runzhou/index.html',
+    cover: './runzhou/images/teahouse.jpg',
+    tag: '北宋 · 江南水乡',
+    desc: '北宋润州城外，金山寺下，有家江心茶馆。十二岁的小茶童李小满端茶送水，那天，一位病弱的老人和一位背着画板的少年走进了茶馆。'
+  }
+];
+
+/* ---------- 渲染副本卡片 ---------- */
+const grid = document.getElementById('gameGrid');
+const fade = document.getElementById('pageFade');
+
+GAMES.forEach(g => {
+  const card = document.createElement('a');
+  card.className = 'game-card';
+  card.href = g.path;
+  card.setAttribute('aria-label', `进入副本：${g.title}`);
+  card.innerHTML = `
+    <div class="scroll-frame">
+      <span class="order-badge">副本 · ${g.order}</span>
+      <img class="cover" src="${g.cover}" alt="${g.title}" decoding="async" />
+      <div class="scroll-bar bottom"></div>
+    </div>
+    <div class="card-info">
+      <span class="card-tag">${g.tag}</span>
+      <h3>${g.title}</h3>
+      <div class="subtitle">${g.subtitle}</div>
+      <p class="desc">${g.desc}</p>
+      <span class="enter">进入副本 <span class="arrow">→</span></span>
+    </div>`;
+  card.addEventListener('click', e => {
+    e.preventDefault();
+    fade.classList.add('show');
+    setTimeout(() => { location.href = g.path; }, 450);
+  });
+  grid.appendChild(card);
+});
+
+/* ---------- 背景音（默认关闭，首次点击开启） ---------- */
+const soundBtn = document.getElementById('soundBtn');
+const soundText = document.getElementById('soundText');
+const wave = document.getElementById('soundWave');
+let ambient = null;
+let soundOn = false;
+
+function setSound(on) {
+  soundOn = on;
+  soundBtn.classList.toggle('on', on);
+  soundBtn.setAttribute('aria-pressed', String(on));
+  soundText.textContent = on ? '静音' : '启音';
+  wave.setAttribute('opacity', on ? '1' : '0');
+  if (ambient) {
+    if (on) ambient.play().catch(() => {});
+    else ambient.pause();
+  }
+  try { localStorage.setItem('hubSound', on ? '1' : '0'); } catch (e) {}
+}
+
+soundBtn.addEventListener('click', () => {
+  if (!ambient) {
+    ambient = new Audio('./runzhou/sounds/wind.m4a');
+    ambient.loop = true;
+    ambient.volume = 0.22;
+  }
+  setSound(!soundOn);
+});
+
+try {
+  if (localStorage.getItem('hubSound') === '1') {
+    ambient = new Audio('./runzhou/sounds/wind.m4a');
+    ambient.loop = true;
+    ambient.volume = 0.22;
+    setSound(true); /* 浏览器可能拦截自动播放，失败时自动回到静音状态 */
+  }
+} catch (e) {}
+
+/* ---------- 空闲时预取两个剧本页面，进入秒开 ---------- */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    GAMES.forEach(g => {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = g.path;
+      link.as = 'document';
+      document.head.appendChild(link);
+    });
+  }, 1600);
+});
+</script>
+</body>
+</html>
