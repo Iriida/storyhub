@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chibi-v2';
+const CACHE_NAME = 'chibi-v3';
 const CDN_HOST = 'cdn.jsdelivr.net';
 
 const PRECACHE_URLS = [
@@ -29,6 +29,12 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
 
   if (request.method !== 'GET' || request.mode === 'navigate') {
+    return;
+  }
+
+  // 音频/视频的分段请求（Range）直接放行，不走 SW：
+  // 重发请求会丢 Range 头，iOS 收不到 206 分段响应就放不出声音
+  if (request.headers.has('range')) {
     return;
   }
 
