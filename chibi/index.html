@@ -7,10 +7,31 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/fire.jpg">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/crossroads.jpg">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/fire.webp">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/crossroads.webp">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/awang.webp">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/agua.webp">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/north_camp.webp">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/caocao.webp">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/south_camp.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/pre_battle.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/pre_battle1.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/defeat.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/morning.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/river.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/escape.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/zhouyu.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/zhuge.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/victory.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/cleanup.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/cleanup1.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/riverside.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/north_ruins.webp">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/teahouse.webp">
 <link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/opening1.m4a">
 <link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/opening2.m4a">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/crossroads0.m4a">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/crossroads1.m4a">
 <link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/crossroads.m4a">
 <link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/wind.m4a">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
@@ -651,30 +672,30 @@ const FIGURES = {
 
 // 立绘 URL 集中管理
 const CHARS = {
-  awang: { name: '阿望', image: CDN + 'images/awang.png' },
-  agua:  { name: '阿瓜', image: CDN + 'images/agua.png' }
+  awang: { name: '阿望', image: CDN + 'images/awang.webp' },
+  agua:  { name: '阿瓜', image: CDN + 'images/agua.webp' }
 };
 
 const BG = {
-  fire:       CDN + 'images/fire.jpg',
-  crossroads: CDN + 'images/crossroads.jpg',
-  northCamp:  CDN + 'images/north_camp.jpg',
-  caocao:     CDN + 'images/caocao.jpg',
-  preBattle:  CDN + 'images/pre_battle.jpg',
-  preBattle1: CDN + 'images/pre_battle1.jpg',
-  defeat:     CDN + 'images/defeat.jpg',
-  morning:    CDN + 'images/morning.jpg',
-  river:      CDN + 'images/river.jpg',
-  escape:     CDN + 'images/escape.jpg',
-  southCamp:  CDN + 'images/south_camp.jpg',
-  zhouyu:     CDN + 'images/zhouyu.jpg',
-  zhuge:      CDN + 'images/zhuge.jpg',
-  victory:    CDN + 'images/victory.jpg',
-  cleanup:    CDN + 'images/cleanup.jpg',
-  cleanup1:   CDN + 'images/cleanup1.jpg',
-  riverside:  CDN + 'images/riverside.jpg',
-  northRuins: CDN + 'images/north_ruins.jpg',
-  teahouse:   CDN + 'images/teahouse.jpg'
+  fire:       CDN + 'images/fire.webp',
+  crossroads: CDN + 'images/crossroads.webp',
+  northCamp:  CDN + 'images/north_camp.webp',
+  caocao:     CDN + 'images/caocao.webp',
+  preBattle:  CDN + 'images/pre_battle.webp',
+  preBattle1: CDN + 'images/pre_battle1.webp',
+  defeat:     CDN + 'images/defeat.webp',
+  morning:    CDN + 'images/morning.webp',
+  river:      CDN + 'images/river.webp',
+  escape:     CDN + 'images/escape.webp',
+  southCamp:  CDN + 'images/south_camp.webp',
+  zhouyu:     CDN + 'images/zhouyu.webp',
+  zhuge:      CDN + 'images/zhuge.webp',
+  victory:    CDN + 'images/victory.webp',
+  cleanup:    CDN + 'images/cleanup.webp',
+  cleanup1:   CDN + 'images/cleanup1.webp',
+  riverside:  CDN + 'images/riverside.webp',
+  northRuins: CDN + 'images/north_ruins.webp',
+  teahouse:   CDN + 'images/teahouse.webp'
 };
 
 const SCENES = {
@@ -1040,9 +1061,12 @@ function loadOneAsset(item, onItemProgress) {
     } else {
       const audio = acquireAudio(item.id);
       if (audio.readyState >= 4) { if (onItemProgress) onItemProgress(1); resolve(); return; }
-      const done = () => resolve();
-      audio.addEventListener('canplaythrough', done, { once: true });
+      let settled = false;
+      const done = () => { if (!settled) { settled = true; resolve(); } };
+      // canplay 即可算完成：音频继续在后台缓冲，避免慢网络下长时间卡进度
+      audio.addEventListener('canplay', done, { once: true });
       audio.addEventListener('error', done, { once: true });
+      setTimeout(done, 6000); /* 兜底：极端网络下不无限等待 */
       if (onItemProgress) {
         const report = () => {
           if (audio.buffered.length > 0 && isFinite(audio.duration) && audio.duration > 0) {
@@ -1153,7 +1177,7 @@ function loadCriticalAssets() {
   _loadingDone = 0;
   updateLoadingProgress(0);
 
-  return loadQueue(items, 6, (done, total) => {
+  return loadQueue(items, 12, (done, total) => {
     _loadingDone = done;
     _loadingTotal = total;
     updateLoadingProgress(done);
@@ -1163,7 +1187,7 @@ function loadCriticalAssets() {
 function loadRemainingAssets() {
   const items = collectRemainingAssets();
   if (!items.length) return Promise.resolve();
-  return loadQueue(items, 2, null);
+  return loadQueue(items, 6, null);
 }
 
 /* ---------- 运行时按需预加载 ---------- */
