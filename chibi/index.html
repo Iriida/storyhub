@@ -7,12 +7,12 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
-<link rel="preload" as="image" href="images/fire.jpg">
-<link rel="preload" as="image" href="images/crossroads.jpg">
-<link rel="prefetch" href="sounds/opening1.m4a">
-<link rel="prefetch" href="sounds/opening2.m4a">
-<link rel="prefetch" href="sounds/crossroads.m4a">
-<link rel="prefetch" href="sounds/wind.m4a">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/fire.jpg">
+<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/crossroads.jpg">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/opening1.m4a">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/opening2.m4a">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/crossroads.m4a">
+<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/wind.m4a">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
 <style>
 /* ========== 基础 ========== */
@@ -539,7 +539,7 @@ h1 {
 
   <!-- 背景音 -->
   <audio id="bgWind" loop preload="auto" style="display:none">
-    <source src="sounds/wind.m4a" type="audio/mp4">
+    <source src="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/wind.m4a" type="audio/mp4">
   </audio>
 
   <!-- 浮窗 -->
@@ -593,7 +593,7 @@ h1 {
  * 1. 数据层
  * ================================================================ */
 
-const CDN = 'https://cdn.jsdelivr.net/gh/iriida/chibi@main/';  // 如需走 jsDelivr：'https://cdn.jsdelivr.net/gh/用户名/仓库名@main/'
+const CDN = 'https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/';  // jsDelivr 代理本仓库 chibi 子目录；回退直连改为 ''
 
 const FIGURES = {
   liubei: {

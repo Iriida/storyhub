@@ -1241,8 +1241,9 @@
 
     <script>
         // ===== CDN 配置 =====
-        // 本副本为自包含站点：所有图片 / 音频从本地文件夹加载
-        const CDN_BASE = '';
+        // 所有图片 / 音频通过 jsDelivr 代理（GitHub Pages 直连的国内访问慢）
+        // 如需回退到本地直连，把 CDN_BASE 改成空字符串 ''
+        const CDN_BASE = 'https://cdn.jsdelivr.net/gh/iriida/storyhub@main/runzhou/';
         const asset = p => (CDN_BASE && !/^https?:/i.test(p)) ? CDN_BASE + p : p;
 
         // 音频扩展名映射：特殊场景的音频可能使用不同格式
@@ -1737,7 +1738,7 @@
             s7: {
                 text: { zh: '来了！',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's8' }],
-                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.webp' },
                 rightChar: null,
                 chapter: { zh: '· 第一幕 · 取茶',  },
                 bg: 'images/teahouse.jpg'
@@ -1755,7 +1756,7 @@
                      },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's10' }],
                 leftChar: null,
-                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.webp' },
                 popup: [{ type: 'figure', id: 'zhang_zeduan' }],
                 chapter: { zh: '· 第一幕 · 画画',  },
                 bg: 'images/teahouse.jpg'
@@ -1764,14 +1765,14 @@
                 text: { zh: '你看——这个撑船的，左边用力，右边虚握，因为是逆水。',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's11' }],
                 leftChar: null,
-                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.webp' },
                 chapter: { zh: '· 第一幕 · 细节',  },
                 bg: 'images/teahouse.jpg'
             },
             s11: {
                 text: { zh: '(脱口而出)那是老周头，他右手有六根手指，握篙特别稳！',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's12' }],
-                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.webp' },
                 rightChar: null,
                 chapter: { zh: '· 第一幕 · 记忆',  },
                 bg: 'images/teahouse.jpg'
@@ -1780,7 +1781,7 @@
                 text: { zh: '(轻轻咳嗽一声，微笑道)好记性。小友，你叫什么？',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's13' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 popup: [{ type: 'figure', id: 'su_shi' }],
                 chapter: { zh: '· 第一幕 · 问名',  },
                 bg: 'images/teahouse.jpg'
@@ -1788,7 +1789,7 @@
             s13: {
                 text: { zh: '回老先生，我叫李小满，是这茶馆的学徒。',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's14' }],
-                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.webp' },
                 rightChar: null,
                 chapter: { zh: '· 第一幕 · 回答',  },
                 bg: 'images/teahouse.jpg'
@@ -1797,7 +1798,7 @@
                 text: { zh: '(点了点头)小满……好名字。老夫苏轼，刚从海南回来，路过此地。能遇见你们，倒是缘分。',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's15' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 popup: [{ type: 'knowledge', id: 'su_bei_gui' }],
                 chapter: { zh: '· 第一幕 · 自我介绍',  },
                 bg: 'images/teahouse.jpg'
@@ -1806,7 +1807,7 @@
                 text: { zh: '原来是苏大人！苏大人，您说我这画到了汴京能入画院吗？',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's16' }],
                 leftChar: null,
-                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.webp' },
                 chapter: { zh: '· 第一幕 · 问画',  },
                 bg: 'images/teahouse.jpg'
             },
@@ -1815,7 +1816,7 @@
                      },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's17' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 chapter: { zh: '· 第一幕 · 点评',  },
                 bg: 'images/teahouse.jpg'
             },
@@ -1823,7 +1824,7 @@
                 text: { zh: '我就画这江上所有的人！以后，我要画一幅大的，画尽天下市井！',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's18' }],
                 leftChar: null,
-                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.webp' },
                 chapter: { zh: '· 第一幕 · 倔强',  },
                 bg: 'images/teahouse.jpg'
             },
@@ -1831,7 +1832,7 @@
                 text: { zh: '（笑了，却咳了两声）好志气。你倒让老夫想起了自己年轻时……（他若有所思，望向江面）',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's19' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 chapter: { zh: '· 第一幕 · 回忆',  },
                 bg: 'images/teahouse.jpg'
             },
@@ -1846,7 +1847,7 @@
                 chapter: { zh: '· 第一幕 · 金山画像',  },
                 bg: 'images/scroll_bg.jpg',
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' }
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' }
             },
             s20: {
                 text: { zh: '王掌柜从柜台后走出，端着一碟茶点：老先生，这是小店送您的。新做的白玉饼，尝尝。',  },
@@ -1861,7 +1862,7 @@
                 text: { zh: '白玉饼……这饼皮薄馅鲜，江南人叫它“烂面饼”。中秋时当团圆饼吃，小孩百日外婆家要送来，说是“拍屁股”，一拍就坐得稳了。江南人过日子，连一块饼都有讲头。',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's22' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 chapter: { zh: '· 第一幕 · 烂面饼',  },
                 bg: 'images/teahouse.jpg'
             },
@@ -1885,7 +1886,7 @@
                 text: { zh: '船太多了……怎么安排才不乱呢？',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's25' }],
                 leftChar: null,
-                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.webp' },
                 chapter: { zh: '· 第二幕 · 困扰',  },
                 bg: 'images/river.jpg'
             },
@@ -1893,7 +1894,7 @@
                 text: { zh: '(凑过去，看了看画布，然后指着运河说)你看，运河南来北往的船，大船走中间，小船靠两边。挑担的农夫要上坡，得侧身让一让穿绸缎的商人。还有——那棵柳树，是润州的老柳了，春天的时候，整个码头都是柳絮。',
                      },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's26' }],
-                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.webp' },
                 rightChar: null,
                 popup: [{ type: 'knowledge', id: 'jiangnan_canal' }],
                 chapter: { zh: '· 第二幕 · 运河',  },
@@ -1903,7 +1904,7 @@
                 text: { zh: '对！对！运河、柳树、金山塔——这就是江南。多谢你帮我！',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's27' }],
                 leftChar: null,
-                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.webp' },
                 chapter: { zh: '· 第二幕 · 领悟',  },
                 bg: 'images/river.jpg'
             },
@@ -1911,14 +1912,14 @@
                 text: { zh: '(缓缓走来，手里拿着一个茶盏，盏中茶汤清亮)两位小友，老夫今日要离开了，请你们喝一碗茶吧。',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's28' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 chapter: { zh: '· 第二幕 · 请茶',  },
                 bg: 'images/river.jpg'
             },
             s28: {
                 text: { zh: '苏大人，这…… ',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's280' }],
-                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.webp' },
                 rightChar: null,
                 chapter: { zh: '· 第二幕 · 接茶',  },
                 bg: 'images/river.jpg'
@@ -1927,7 +1928,7 @@
                 text: { zh: '多谢苏大人。（轻抿一口）好茶！',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's29' }],
                 leftChar: null,
-                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.png' },
+                rightChar: { name: { zh: '张择端',  }, image: 'images/zhang.webp' },
                 chapter: { zh: '· 第二幕 · 接茶',  },
                 bg: 'images/river.jpg'
             },
@@ -1935,7 +1936,7 @@
                 text: { zh: '(笑，把茶盏递给小满)喝便是。说说你尝到了什么。',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's30' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 chapter: { zh: '· 第二幕 · 问味',  },
                 bg: 'images/river.jpg'
             },
@@ -1955,14 +1956,14 @@
                 nextScene: 's31',
                 chapter: { zh: '· 交互 · 茶味',  },
                 bg: 'images/river.jpg',
-                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.png' },
+                leftChar: { name: { zh: '李小满',  }, image: 'images/xiaoman.webp' },
                 rightChar: null
             },
             s31: {
                 text: { zh: '你说得对。茶和人一样——不只有一种味道。苦的、甜的、清香的，都在同一盏里。',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's32' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 chapter: { zh: '· 第二幕 · 茶如人',  },
                 bg: 'images/river.jpg'
             },
@@ -1978,7 +1979,7 @@
                 text: { zh: '(回头，看向小满，也看向屏幕前的人)小满，最后问你——你想活出怎样的人生？',  },
                 options: [{ text: { zh: '继续...',  }, nextScene: 's34' }],
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' },
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' },
                 chapter: { zh: '· 第三幕 · 人生之问',  },
                 bg: 'images/river.jpg'
             },
@@ -1991,7 +1992,7 @@
                 chapter: { zh: '· 交互 · 人生回答',  },
                 bg: 'images/river.jpg',
                 leftChar: null,
-                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.png' }
+                rightChar: { name: { zh: '苏轼',  }, image: 'images/sushi.webp' }
             },
             s35: {
                 text: { zh: '多年以后……\n\n江声依旧，金山寺的钟声也还在。你坐在茶馆里，手边放着一碗茶。\n\n你想起那年苏轼和张择端在江边的对话，想起那幅未完成的画，想起那碗有回甘的茶。\n\n如果有一天，你要留下一样东西，你会留下什么？',

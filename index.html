@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
 <title>故纸舟 · 互动历史故事</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <style>
 /* ================= 基础 ================= */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -443,6 +444,10 @@ footer {
  * 1. 把剧本文件夹放进本站目录（如 ./myscript/）
  * 2. 在 GAMES 数组里加一条 { id, title, subtitle, path, cover, tag, desc }
  * ============================================================ */
+// 封面等资源走 jsDelivr 代理，国内访问更快；回退直连把 CDN_BASE 改成 ''
+const CDN_BASE = 'https://cdn.jsdelivr.net/gh/iriida/storyhub@main/';
+const asset = p => (CDN_BASE && !/^https?:/i.test(p)) ? CDN_BASE + p.replace(/^\.\//, '') : p;
+
 const GAMES = [
   {
     id: 'chibi',
@@ -478,7 +483,7 @@ GAMES.forEach(g => {
   card.innerHTML = `
     <div class="scroll-frame">
       <span class="order-badge">副本 · ${g.order}</span>
-      <img class="cover" src="${g.cover}" alt="${g.title}" decoding="async" />
+      <img class="cover" src="${asset(g.cover)}" alt="${g.title}" decoding="async" />
       <div class="scroll-bar bottom"></div>
     </div>
     <div class="card-info">
@@ -518,7 +523,7 @@ function setSound(on) {
 
 soundBtn.addEventListener('click', () => {
   if (!ambient) {
-    ambient = new Audio('./runzhou/sounds/wind.m4a');
+    ambient = new Audio(asset('./runzhou/sounds/wind.m4a'));
     ambient.loop = true;
     ambient.volume = 0.22;
   }
@@ -527,7 +532,7 @@ soundBtn.addEventListener('click', () => {
 
 try {
   if (localStorage.getItem('hubSound') === '1') {
-    ambient = new Audio('./runzhou/sounds/wind.m4a');
+    ambient = new Audio(asset('./runzhou/sounds/wind.m4a'));
     ambient.loop = true;
     ambient.volume = 0.22;
     setSound(true); /* 浏览器可能拦截自动播放，失败时自动回到静音状态 */
