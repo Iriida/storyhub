@@ -1187,7 +1187,8 @@ function loadCriticalAssets() {
 function loadRemainingAssets() {
   const items = collectRemainingAssets();
   if (!items.length) return Promise.resolve();
-  return loadQueue(items, 6, null);
+  // 后台静默预加载，低并发避免和游玩时的网络争抢
+  return loadQueue(items, 2, null);
 }
 
 /* ---------- 运行时按需预加载 ---------- */
