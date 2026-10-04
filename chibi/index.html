@@ -1032,12 +1032,13 @@ function getLoadingLabel(done, total) {
 }
 
 function updateLoadingProgress(doneVal) {
-  const pct = _loadingTotal > 0 ? Math.round((doneVal / _loadingTotal) * 100) : 0;
+  const clamped = Math.min(doneVal, _loadingTotal);
+  const pct = _loadingTotal > 0 ? Math.min(Math.round((clamped / _loadingTotal) * 100), 100) : 0;
   const bar = document.getElementById('loadingBar');
   const text = document.getElementById('loadingText');
   if (bar) bar.style.width = pct + '%';
   if (text) {
-    const doneInt = Math.floor(doneVal);
+    const doneInt = Math.floor(clamped);
     const label = getLoadingLabel(doneInt, _loadingTotal);
     text.textContent = _loadingTotal > 0
       ? `${label}　${doneInt} / ${_loadingTotal}`
@@ -1089,6 +1090,7 @@ function loadQueue(items, concurrency, onProgress) {
     let done = 0;
     const total = items.length;
     const partial = new Array(total).fill(0);
+    const finished = new Array(total).fill(false);
 
     if (total === 0) { resolve(); return; }
 
@@ -1096,7 +1098,7 @@ function loadQueue(items, concurrency, onProgress) {
       if (!onProgress) return;
       let sum = done;
       for (let i = 0; i < total; i++) sum += partial[i];
-      onProgress(sum, total);
+      onProgress(Math.min(sum, total), total);
     }
 
     function next() {
@@ -1106,9 +1108,13 @@ function loadQueue(items, concurrency, onProgress) {
         const item = items[i];
         active++;
         loadOneAsset(item, frac => {
+          // 完成后忽略迟到的 progress 事件：音频 canplay 算完成但仍在后台缓冲，
+          // 继续累加会把计数推到 total 之上（出现 27/26）
+          if (finished[i]) return;
           partial[i] = Math.min(frac, 1);
           report();
         }).then(() => {
+          finished[i] = true;
           partial[i] = 0;
           active--;
           done++;
