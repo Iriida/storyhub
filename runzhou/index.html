@@ -1241,9 +1241,8 @@
 
     <script>
         // ===== CDN 配置 =====
-        // 所有图片 / 音频通过 jsDelivr 代理（GitHub Pages 直连的国内访问慢）
-        // 如需回退到本地直连，把 CDN_BASE 改成空字符串 ''
-        const CDN_BASE = 'https://cdn.jsdelivr.net/gh/iriida/storyhub@main/runzhou/';
+        // 资源与页面同源托管（GitHub Pages），避免第三方 CDN 重定向/限流风险
+        const CDN_BASE = '';
         const asset = p => (CDN_BASE && !/^https?:/i.test(p)) ? CDN_BASE + p : p;
 
         // 音频扩展名映射：特殊场景的音频可能使用不同格式

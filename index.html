@@ -444,8 +444,8 @@ footer {
  * 1. 把剧本文件夹放进本站目录（如 ./myscript/）
  * 2. 在 GAMES 数组里加一条 { id, title, subtitle, path, cover, tag, desc }
  * ============================================================ */
-// 封面等资源走 jsDelivr 代理，国内访问更快；回退直连把 CDN_BASE 改成 ''
-const CDN_BASE = 'https://cdn.jsdelivr.net/gh/iriida/storyhub@main/';
+// 资源与页面同源托管（GitHub Pages），避免第三方 CDN 重定向/限流风险
+const CDN_BASE = '';
 const asset = p => (CDN_BASE && !/^https?:/i.test(p)) ? CDN_BASE + p.replace(/^\.\//, '') : p;
 
 const GAMES = [

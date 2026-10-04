@@ -7,27 +7,27 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/fire.webp">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/crossroads.webp">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/awang.webp">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/agua.webp">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/north_camp.webp">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/caocao.webp">
-<link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/south_camp.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/pre_battle.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/pre_battle1.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/defeat.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/morning.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/river.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/escape.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/zhouyu.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/zhuge.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/victory.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/cleanup.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/cleanup1.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/riverside.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/north_ruins.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/teahouse.webp">
+<link rel="preload" as="image" href="images/fire.webp">
+<link rel="preload" as="image" href="images/crossroads.webp">
+<link rel="preload" as="image" href="images/awang.webp">
+<link rel="preload" as="image" href="images/agua.webp">
+<link rel="preload" as="image" href="images/north_camp.webp">
+<link rel="preload" as="image" href="images/caocao.webp">
+<link rel="preload" as="image" href="images/south_camp.webp">
+<link rel="prefetch" href="images/pre_battle.webp">
+<link rel="prefetch" href="images/pre_battle1.webp">
+<link rel="prefetch" href="images/defeat.webp">
+<link rel="prefetch" href="images/morning.webp">
+<link rel="prefetch" href="images/river.webp">
+<link rel="prefetch" href="images/escape.webp">
+<link rel="prefetch" href="images/zhouyu.webp">
+<link rel="prefetch" href="images/zhuge.webp">
+<link rel="prefetch" href="images/victory.webp">
+<link rel="prefetch" href="images/cleanup.webp">
+<link rel="prefetch" href="images/cleanup1.webp">
+<link rel="prefetch" href="images/riverside.webp">
+<link rel="prefetch" href="images/north_ruins.webp">
+<link rel="prefetch" href="images/teahouse.webp">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
 <style>
 /* ========== 基础 ========== */
@@ -554,7 +554,7 @@ h1 {
 
   <!-- 背景音 -->
   <audio id="bgWind" loop preload="auto" style="display:none">
-    <source src="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/wind.m4a" type="audio/mp4">
+    <source src="sounds/wind.m4a" type="audio/mp4">
   </audio>
 
   <!-- 浮窗 -->
@@ -608,7 +608,7 @@ h1 {
  * 1. 数据层
  * ================================================================ */
 
-const CDN = 'https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/';  // jsDelivr 代理本仓库 chibi 子目录；回退直连改为 ''
+const CDN = '';  // 媒体与页面同源托管（GitHub Pages）
 
 const FIGURES = {
   liubei: {
