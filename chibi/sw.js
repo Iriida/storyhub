@@ -21,8 +21,8 @@ function fetchFullAndCache(url) {
 }
 
 /**
- * 处理音频的 Range 分段请求：从缓存的完整文件里切出 206 响应。
- * 不能丢 Range 头重发（iOS 放不出声），不能透传绕过缓存（反复走网络）。
+ * 处理音频的 Range 分段请求：缓存里有完整文件时切出 206 响应，没有则原样透传。
+ * 不能丢 Range 头重发（iOS 放不出声）；未命中不整包下载（iOS 会等整包、且抢带宽）。
  */
 async function serveRange(request) {
   const url = request.url;
@@ -30,24 +30,13 @@ async function serveRange(request) {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(url);
 
-  let body;
-  let contentType;
-  if (cached) {
-    body = await cached.arrayBuffer();
-    contentType = cached.headers.get('Content-Type');
-  } else {
-    let response = null;
-    try {
-      response = await fetchFullAndCache(url);
-    } catch (e) {
-      return fetch(request);
-    }
-    if (!response || response.status !== 200) {
-      return fetch(request);
-    }
-    body = await response.arrayBuffer();
-    contentType = response.headers.get('Content-Type');
-  }
+  // 缓存未命中：直接透传（Range 头原样保留）。
+  // 不在这里整包下载再切片：iOS 会一直等整包下完才出声，而且整包下载会与播放抢带宽。
+  // iOS 的媒体请求全部带 Range，因此 iOS 上音频永远走原生 GitHub Pages 206 路径。
+  if (!cached) return fetch(request);
+
+  const body = await cached.arrayBuffer();
+  const contentType = cached.headers.get('Content-Type');
 
   const m = rangeHeader.match(/bytes=(\d*)-(\d*)/);
   if (!m) return fetch(request);

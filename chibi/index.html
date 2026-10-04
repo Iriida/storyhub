@@ -1292,7 +1292,15 @@ function playAudio(id, onEnd) {
   if (audio.readyState >= 3) {
     tryPlay();
   } else {
-    audio.addEventListener('canplay', tryPlay, { once: true });
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      tryPlay();
+    };
+    audio.addEventListener('canplay', start, { once: true });
+    // 兜底：4 秒后无论 canplay 是否触发都试播，避免卡死成永久静音
+    setTimeout(start, 4000);
   }
 }
 
