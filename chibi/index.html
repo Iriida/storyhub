@@ -28,12 +28,6 @@
 <link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/riverside.webp">
 <link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/north_ruins.webp">
 <link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/images/teahouse.webp">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/opening1.m4a">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/opening2.m4a">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/crossroads0.m4a">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/crossroads1.m4a">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/crossroads.m4a">
-<link rel="prefetch" href="https://cdn.jsdelivr.net/gh/iriida/storyhub@main/chibi/sounds/wind.m4a">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/lxgwwenkai-regular.css">
 <style>
 /* ========== 基础 ========== */
@@ -1669,12 +1663,6 @@ window.addEventListener('load', () => {
   });
 
   dom.bgWind.load();
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(err => {
-      console.log('SW注册失败:', err);
-    });
-  }
 });
 </script>
 </body>
