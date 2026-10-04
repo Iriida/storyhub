@@ -4,8 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
 <title>故纸舟 · 互动历史故事</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css" />
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <style>
 /* ================= 基础 ================= */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,6 +16,24 @@
   --muted: #6f6959;
   --seal: #a93226;
   --gold: #b08d57;
+}
+
+/* 大厅专用字体子集（fonts/make_subset.py 生成）：
+   只含本页用到的字符，两个 woff2 同源加载，替代原来的 30+ 个 CDN 字体请求。
+   新增剧本出现新汉字时重跑脚本再生成。 */
+@font-face {
+  font-family: "LXGW WenKai";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/lxgw-subset-regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "LXGW WenKai";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./fonts/lxgw-subset-bold.woff2") format("woff2");
 }
 
 html, body { min-height: 100%; }
@@ -397,7 +413,7 @@ footer {
 <div class="page">
   <header class="topbar">
     <div class="brand">
-      <img class="brand-logo" src="./images/logo.jpg" alt="故纸舟" />
+      <img class="brand-logo" src="./images/logo.webp" alt="故纸舟" />
       <div>
         <h1>故纸舟</h1>
         <div class="sub">互动历史故事</div>
@@ -465,7 +481,7 @@ const GAMES = [
     title: '润州小茶童',
     subtitle: '金山寺下 · 江心茶馆',
     path: './runzhou/index.html',
-    cover: './runzhou/images/teahouse.jpg',
+    cover: './images/teahouse-cover.webp',
     tag: '北宋 · 江南水乡',
     desc: '北宋润州城外，金山寺下，有家江心茶馆。十二岁的小茶童李小满端茶送水，那天，一位病弱的老人和一位背着画板的少年走进了茶馆。'
   }
