@@ -992,6 +992,9 @@ const state = {
 
 const audioCache = new Map();
 
+// 台词播放期间暂停后台预载，把带宽让给正在播的音频
+let _bgLoadPaused = false;
+
 function getAudioUrl(id) {
   const ext = AUDIO_EXT[id] || '.m4a';
   return `${CDN}sounds/${id}${ext}`;
@@ -1102,6 +1105,10 @@ function loadQueue(items, concurrency, onProgress) {
     }
 
     function next() {
+      if (_bgLoadPaused) {
+        setTimeout(next, 600);
+        return;
+      }
       if (done >= total) { resolve(); return; }
       while (active < concurrency && index < total) {
         const i = index++;
@@ -1188,7 +1195,7 @@ function loadRemainingAssets() {
   const items = collectRemainingAssets();
   if (!items.length) return Promise.resolve();
   // 后台静默预加载，低并发避免和游玩时的网络争抢
-  return loadQueue(items, 2, null);
+  return loadQueue(items, 3, null);
 }
 
 /* ---------- 运行时按需预加载 ---------- */
@@ -1252,9 +1259,11 @@ function stopAudio() {
  */
 function playAudio(id, onEnd) {
   stopAudio();
+  _bgLoadPaused = true;
   const audio = acquireAudio(id);
 
   const finish = () => {
+    _bgLoadPaused = false;
     if (state.audio === audio) state.audio = null;
     if (onEnd) onEnd();
   };
@@ -1513,6 +1522,7 @@ function displayScene(sceneId) {
 
   state.sceneId = sceneId;
   stopAudio();
+  _bgLoadPaused = false;
   stopTyping();
 
   if (scene.isHistory) {
@@ -1669,6 +1679,12 @@ window.addEventListener('load', () => {
   });
 
   dom.bgWind.load();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.log('SW注册失败:', err);
+    });
+  }
 });
 </script>
 </body>
