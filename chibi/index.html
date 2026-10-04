@@ -986,7 +986,7 @@ const state = {
  *   2. 并发限制为 4，每个资源完成时进度都推进，条子平滑
  *   3. 用"已加载 / 总数"取代百分比，避免总数变化时跳变
  *   4. 剩余资源后台静默加载，不动进度条
- *   5. 音频预加载和播放共用 audioCache，不再各自 new
+ *   5. 音频预载用 fetch 整包拉取并落 SW 缓存（iOS 也生效），播放复用 audioCache
  *   6. 加载文案分阶段变化，贴合渡江叙事
  * ================================================================ */
 
@@ -1050,39 +1050,59 @@ function updateLoadingProgress(doneVal) {
 }
 
 /* ---------- 单个资源加载 ---------- */
-function loadOneAsset(item, onItemProgress) {
+
+const _warmedAudio = new Set();
+
+/* 音频整包预载：fetch（不带 Range）下载完整文件后生成 blob 交给播放元素。
+ * 1) iOS Safari 忽略 preload=auto，fetch 不受影响；
+ * 2) 无 Range 的请求会经 SW 写入完整缓存，二次访问直接命中；
+ * 3) 进度按真实字节数走，文件真正下完才计入完成，进度条不再虚报；
+ * 4) 播放元素用本地 blob，任何访问都不再重复下载。 */
+function warmAudio(id, onItemProgress) {
+  const url = getAudioUrl(id);
+  if (_warmedAudio.has(url)) return Promise.resolve();
+  _warmedAudio.add(url);
   return new Promise(resolve => {
-    if (item.type === 'img') {
+    let settled = false;
+    const done = () => { if (!settled) { settled = true; resolve(); } };
+    setTimeout(done, 20000); /* 兜底：网络卡死时不无限占用队列，下载仍在后台继续 */
+    fetch(url, { mode: 'cors', credentials: 'omit' }).then(res => {
+      if (!res.ok || !res.body) { done(); return; }
+      const total = Number(res.headers.get('content-length')) || 0;
+      const type = res.headers.get('content-type') || 'audio/mp4';
+      const reader = res.body.getReader();
+      const chunks = [];
+      let loaded = 0;
+      const pump = () => reader.read().then(({ done: rd, value }) => {
+        if (rd) {
+          const existing = audioCache.get(id);
+          if (existing && state.audio === existing) { done(); return; } /* 正在播不打断 */
+          const a = existing || new Audio();
+          a.preload = 'auto';
+          a.src = URL.createObjectURL(new Blob(chunks, { type }));
+          audioCache.set(id, a);
+          done();
+          return;
+        }
+        loaded += value.length;
+        chunks.push(value);
+        if (total && onItemProgress) onItemProgress(Math.min(loaded / total, 1));
+        pump();
+      });
+      pump();
+    }).catch(() => { _warmedAudio.delete(url); done(); }); /* 网络失败允许下次重试 */
+  });
+}
+
+function loadOneAsset(item, onItemProgress) {
+  if (item.type === 'img') {
+    return new Promise(resolve => {
       const img = new Image();
       img.onload = img.onerror = () => { if (onItemProgress) onItemProgress(1); resolve(); };
       img.src = item.url;
-    } else {
-      const audio = acquireAudio(item.id);
-      if (audio.readyState >= 4) { if (onItemProgress) onItemProgress(1); resolve(); return; }
-      let settled = false;
-      const done = () => { if (!settled) { settled = true; resolve(); } };
-      // canplay 即可算完成：音频继续在后台缓冲，避免慢网络下长时间卡进度
-      audio.addEventListener('canplay', done, { once: true });
-      audio.addEventListener('error', done, { once: true });
-      setTimeout(done, 6000); /* 兜底：极端网络下不无限等待 */
-      if (onItemProgress) {
-        const report = () => {
-          if (audio.buffered.length > 0 && isFinite(audio.duration) && audio.duration > 0) {
-            const end = audio.buffered.end(audio.buffered.length - 1);
-            onItemProgress(Math.min(end / audio.duration, 1));
-          }
-        };
-        const cleanup = () => {
-          audio.removeEventListener('progress', report);
-          audio.removeEventListener('loadedmetadata', report);
-        };
-        audio.addEventListener('progress', report);
-        audio.addEventListener('loadedmetadata', report);
-        audio.addEventListener('canplaythrough', cleanup, { once: true });
-        audio.addEventListener('error', cleanup, { once: true });
-      }
-    }
-  });
+    });
+  }
+  return warmAudio(item.id, onItemProgress);
 }
 
 /* ---------- 限制并发的队列加载 ---------- */
@@ -1155,8 +1175,8 @@ function collectCriticalAssets() {
     }
   });
 
-  // 关键音频
-  const criticalScenes = ['opening1', 'opening2', 'crossroads0', 'crossroads1', 'crossroads'];
+  // 关键音频（wind 是 BGM，一并整包预热，iOS 上也能秒起）
+  const criticalScenes = ['opening1', 'opening2', 'crossroads0', 'crossroads1', 'crossroads', 'wind'];
   criticalScenes.forEach(id => {
     if (!seen.has('audio:' + id)) {
       seen.add('audio:' + id);
@@ -1168,7 +1188,7 @@ function collectCriticalAssets() {
 }
 
 function collectRemainingAssets() {
-  const criticalSet = new Set(['opening1', 'opening2', 'crossroads0', 'crossroads1', 'crossroads']);
+  const criticalSet = new Set(['opening1', 'opening2', 'crossroads0', 'crossroads1', 'crossroads', 'wind']);
   const list = [];
   Object.keys(SCENES).forEach(id => {
     if (id !== 'history' && !criticalSet.has(id)) {
@@ -1217,7 +1237,7 @@ function preloadScene(sceneId) {
   if (scene.bg) preloadImg(scene.bg);
   if (scene.leftChar && CHARS[scene.leftChar]) preloadImg(CHARS[scene.leftChar].image);
   if (scene.rightChar && CHARS[scene.rightChar]) preloadImg(CHARS[scene.rightChar].image);
-  acquireAudio(sceneId);
+  warmAudio(sceneId);
 }
 
 function preloadAhead(sceneId, depth = 2) {

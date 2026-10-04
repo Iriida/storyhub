@@ -1266,29 +1266,41 @@
                 if (!url || this.loaded.has(url)) return Promise.resolve();
                 this.loaded.add(url);
                 const isAudio = /\.(mp3|m4a|ogg|wav)$/i.test(url);
-                return new Promise(resolve => {
-                    if (isAudio) {
-                        const a = new Audio();
-                        a.preload = 'auto';
-                        a.oncanplaythrough = () => resolve();
-                        a.onerror = () => resolve();
-                        a.src = url;
-                        this.keepAlive.push(a);
-                    } else {
+                if (!isAudio) {
+                    return new Promise(resolve => {
                         const img = new Image();
                         img.onload = () => resolve();
                         img.onerror = () => resolve();
                         img.src = url;
                         this.keepAlive.push(img);
-                    }
-                });
+                    });
+                }
+                // 音频整包预载：fetch（不带 Range）→ blob 交给缓存池的播放元素。
+                // 1) iOS Safari 忽略 preload=auto，fetch 不受影响；
+                // 2) 无 Range 的请求会经 SW 写入完整缓存，二次访问直接命中；
+                // 3) 播放用本地 blob，不再重复下载。
+                return fetch(url, { mode: 'cors', credentials: 'omit' }).then(res => {
+                    if (!res.ok) return;
+                    return res.blob();
+                }).then(blob => {
+                    if (!blob) return;
+                    const existing = audioCache.get(url);
+                    if (existing && currentAudio === existing) return; /* 正在播不打断 */
+                    const a = existing || new Audio();
+                    a.preload = 'auto';
+                    a.src = URL.createObjectURL(blob);
+                    audioCache.set(url, a);
+                }).catch(() => {});
             },
             loadScene(sceneId) {
                 const scene = scenes[sceneId];
                 if (!scene) return;
                 if (scene.bg) this.load(asset(scene.bg));
-                const ext = AUDIO_EXT_MAP[sceneId] || '.m4a';
-                this.load(asset(`sounds/${sceneId}${ext}`));
+                // 无配音场景（问卷/卷轴/输入/结局）不请求音频
+                if (!scene.noAudio && scene.type !== 'scroll' && scene.type !== 'ending') {
+                    const ext = AUDIO_EXT_MAP[sceneId] || '.m4a';
+                    this.load(asset(`sounds/${sceneId}${ext}`));
+                }
                 if (scene.leftChar) this.load(asset(scene.leftChar.image));
                 if (scene.rightChar) this.load(asset(scene.rightChar.image));
             },
@@ -1303,8 +1315,16 @@
                     if (s.rightChar) urls.add(asset(s.rightChar.image));
                 });
                 Object.keys(scenes).forEach(id => {
+                    const s = scenes[id];
+                    if (s.noAudio || s.type === 'scroll' || s.type === 'ending') return;
                     const ext = AUDIO_EXT_MAP[id] || '.m4a';
                     urls.add(asset(`sounds/${id}${ext}`));
+                });
+                Object.values(scenes).forEach(s => {
+                    if (s.popup) s.popup.forEach(p => {
+                        const ext = AUDIO_EXT_MAP[p.id] || '.m4a';
+                        urls.add(asset(`sounds/${p.id}${ext}`));
+                    });
                 });
                 return [...urls];
             },
@@ -1327,6 +1347,12 @@
             }
         };
 
+        // ===== Service Worker：媒体本地缓存，二次访问配音/图片秒出 =====
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(err =>
+                console.log('SW 注册失败:', err));
+        }
+
         // ===== 全局变量 =====
         let currentLang = 'zh';
         let playerAge = '9-12';
@@ -1345,6 +1371,8 @@
         let currentParagraphTexts = [];
         let audioInitialized = false;
         let currentAudio = null;
+        // 预加载与播放共用的音频缓存池：key 为完整 URL
+        const audioCache = new Map();
         let autoPlayEnabled = false;
         let scrollTimer = null;
         let sceneAudioPending = false;
@@ -1666,6 +1694,7 @@
         const scenes = {
             s0: {
                 type: 'checkbox',
+                noAudio: true,
                 text: {
                     zh: '以下哪些是你听说过的？请选出所有你认识或听说过的：',
                     
@@ -1984,6 +2013,7 @@
             },
             s34: {
                 type: 'text',
+                noAudio: true,
                 text: { zh: '如果是你，你会怎么回答苏轼？',  },
                 inputLabel: { zh: '你的回答：',  },
                 submitLabel: { zh: '提交回答',  },
@@ -2057,8 +2087,14 @@
                 currentAudio = null;
             }
             const extension = AUDIO_EXT_MAP[audioId] || '.m4a';
-            const audio = new Audio(asset(`sounds/${audioId}${extension}`));
-            audio.preload = 'auto';
+            const url = asset(`sounds/${audioId}${extension}`);
+            // 复用预加载缓存的 Audio 对象，避免每句台词重新下载
+            let audio = audioCache.get(url);
+            if (!audio) {
+                audio = new Audio(url);
+                audio.preload = 'auto';
+                audioCache.set(url, audio);
+            }
 
             const finish = () => {
                 if (currentAudio === audio) currentAudio = null;
@@ -2066,26 +2102,41 @@
             };
 
             audio.onerror = () => {
-                console.log(`音频不存在: sounds/${audioId}${extension}`);
+                console.log(`音频不存在: ${url}`);
                 finish();
             };
             audio.onended = finish;
-
-            audio.play().catch(err => {
-                console.log('音频播放失败:', err);
-                const retry = () => {
-                    ['click', 'touchstart', 'keydown'].forEach(evt =>
-                        document.removeEventListener(evt, retry)
-                    );
-                    if (currentAudio === audio) {
-                        audio.play().catch(() => finish());
-                    }
-                };
-                ['click', 'touchstart', 'keydown'].forEach(evt =>
-                    document.addEventListener(evt, retry, { once: true, passive: true })
-                );
-            });
+            try { audio.currentTime = 0; } catch (e) {}
             currentAudio = audio;
+
+            const tryPlay = () => {
+                if (currentAudio !== audio) return;
+                audio.play().catch(err => {
+                    console.log('音频播放失败:', err);
+                    const retry = () => {
+                        ['click', 'touchstart', 'keydown'].forEach(evt =>
+                            document.removeEventListener(evt, retry)
+                        );
+                        if (currentAudio === audio) {
+                            audio.play().catch(() => finish());
+                        }
+                    };
+                    ['click', 'touchstart', 'keydown'].forEach(evt =>
+                        document.addEventListener(evt, retry, { once: true, passive: true })
+                    );
+                });
+            };
+
+            // 等 source 就绪再播：慢网络下立刻 play() 会抛 NotSupportedError 导致整句丢失
+            if (audio.readyState >= 3) {
+                tryPlay();
+            } else {
+                let started = false;
+                const start = () => { if (started) return; started = true; tryPlay(); };
+                audio.addEventListener('canplay', start, { once: true });
+                // 兜底：4 秒后无论 canplay 是否触发都试播，避免卡成永久静音
+                setTimeout(start, 4000);
+            }
         }
 
         function cancelAllSpeech() {
@@ -2477,15 +2528,17 @@
             // ===== 定义「当页播放」：打字机 + 当页音频同时启动 =====
             const startPlayback = () => {
                 if (scene.type === 'scroll' || scene.type === 'ending') return;
-                playAudio(sceneId, function() {
-                    if (autoPlayEnabled && scene.options && scene.options.length === 1) {
-                        setTimeout(() => {
-                            if (!continueBtn.classList.contains('hidden')) {
-                                continueBtn.click();
-                            }
-                        }, 500);
-                    }
-                });
+                if (!scene.noAudio) {
+                    playAudio(sceneId, function() {
+                        if (autoPlayEnabled && scene.options && scene.options.length === 1) {
+                            setTimeout(() => {
+                                if (!continueBtn.classList.contains('hidden')) {
+                                    continueBtn.click();
+                                }
+                            }, 500);
+                        }
+                    });
+                }
                 typeWriter(paraElements, plainTexts, 30, () => {});
             };
 
