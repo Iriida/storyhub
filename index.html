@@ -134,27 +134,6 @@ body::before {
   color: var(--muted);
 }
 
-.sound-btn {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  padding: .45rem .9rem;
-  border: 1px solid rgba(47, 58, 48, .35);
-  border-radius: 999px;
-  background: rgba(255, 252, 244, .55);
-  color: var(--ink-soft);
-  font: inherit;
-  font-size: .85rem;
-  letter-spacing: .12em;
-  cursor: pointer;
-  transition: all .25s;
-  backdrop-filter: blur(3px);
-}
-.sound-btn:hover { border-color: var(--ink-soft); background: rgba(255, 252, 244, .85); }
-.sound-btn svg { width: 15px; height: 15px; }
-.sound-btn.on { color: var(--seal); border-color: var(--seal); }
-
 /* ================= 卷首 ================= */
 .hero {
   text-align: center;
@@ -419,13 +398,6 @@ footer {
         <div class="sub">互动历史故事</div>
       </div>
     </div>
-    <button class="sound-btn" id="soundBtn" aria-pressed="false" aria-label="开关背景音">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M11 5 6 9H2v6h4l5 4V5z"/>
-        <path id="soundWave" d="M15.5 8.5a5 5 0 0 1 0 7" opacity="0"/>
-      </svg>
-      <span id="soundText">启音</span>
-    </button>
   </header>
 
   <section class="hero">
@@ -516,44 +488,6 @@ GAMES.forEach(g => {
   });
   grid.appendChild(card);
 });
-
-/* ---------- 背景音（默认关闭，首次点击开启） ---------- */
-const soundBtn = document.getElementById('soundBtn');
-const soundText = document.getElementById('soundText');
-const wave = document.getElementById('soundWave');
-let ambient = null;
-let soundOn = false;
-
-function setSound(on) {
-  soundOn = on;
-  soundBtn.classList.toggle('on', on);
-  soundBtn.setAttribute('aria-pressed', String(on));
-  soundText.textContent = on ? '静音' : '启音';
-  wave.setAttribute('opacity', on ? '1' : '0');
-  if (ambient) {
-    if (on) ambient.play().catch(() => {});
-    else ambient.pause();
-  }
-  try { localStorage.setItem('hubSound', on ? '1' : '0'); } catch (e) {}
-}
-
-soundBtn.addEventListener('click', () => {
-  if (!ambient) {
-    ambient = new Audio(asset('./runzhou/sounds/wind.m4a'));
-    ambient.loop = true;
-    ambient.volume = 0.22;
-  }
-  setSound(!soundOn);
-});
-
-try {
-  if (localStorage.getItem('hubSound') === '1') {
-    ambient = new Audio(asset('./runzhou/sounds/wind.m4a'));
-    ambient.loop = true;
-    ambient.volume = 0.22;
-    setSound(true); /* 浏览器可能拦截自动播放，失败时自动回到静音状态 */
-  }
-} catch (e) {}
 
 /* ---------- 空闲时预取两个剧本页面，进入秒开 ---------- */
 window.addEventListener('load', () => {
