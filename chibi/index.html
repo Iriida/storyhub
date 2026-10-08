@@ -916,7 +916,7 @@ const SCENES = {
   },
   history: {
     text: '建安十三年，曹操南下攻打孙刘联军。联军由周瑜当总指挥，和曹军隔江相望。战前，周瑜的部下黄盖向曹操假装投降，实则是为了铺垫后来的火攻。战争发动的那天，诸葛亮没有借东风，东南风起是自然原因。东吴的船队带着火光冲进曹营，而曹军又恰好把船绑在了一起，一时间火势更加猛烈，曹军大败，船只烧毁殆尽。这就是奠定下三国鼎立局面的赤壁之战。',
-    options: [{ text: '重头再来', nextScene: 'opening1' }],
+    options: [{ text: '回到大厅', nextScene: 'lobby' }],
     isHistory: true
   }
 };
@@ -1527,7 +1527,10 @@ function showHistory(scene) {
     const btn = document.createElement('button');
     btn.className = 'history-btn';
     btn.textContent = opt.text;
-    btn.onclick = () => displayScene(opt.nextScene);
+    btn.onclick = () => {
+      if (opt.nextScene === 'lobby') { location.href = '../'; return; }
+      displayScene(opt.nextScene);
+    };
     dom.historyOptions.appendChild(btn);
   });
   dom.historyScreen.classList.add('active');

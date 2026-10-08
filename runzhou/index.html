@@ -1198,7 +1198,7 @@
             <div class="ending-panel">
                 <div class="ending-title" id="endingTitle">· 尾声 · 江声</div>
                 <div class="ending-body" id="endingBody"></div>
-                <button class="ending-restart-btn" id="endingRestartBtn">重头再来</button>
+                <button class="ending-restart-btn" id="endingRestartBtn">回到大厅</button>
             </div>
         </div>
 
@@ -1472,7 +1472,7 @@
             privacyNote: { zh: '仅收集匿名统计数据，用于优化游戏体验',  },
             enterGame: { zh: '开始旅程 →',  },
             scrollContinue: { zh: '继续',  },
-            endingRestart: { zh: '重头再来',  },
+            endingRestart: { zh: '回到大厅',  },
             autoPlay: { zh: '自动播放',  },
             autoPlaying: { zh: '自动播放中',  },
             routeTag: { zh: '🌿 润州',  },
@@ -2380,7 +2380,7 @@
             endingBody.innerHTML = bodyHtml;
             endingScreen.classList.add('active');
             endingRestartBtn.textContent = t(uiTexts.endingRestart);
-            endingRestartBtn.onclick = function() { resetGame(); };
+            endingRestartBtn.onclick = function() { location.href = '../index.html'; };
         }
 
         function adjustCharacterPosition() {
