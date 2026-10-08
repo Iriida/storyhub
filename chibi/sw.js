@@ -1,7 +1,7 @@
 // 媒体本地缓存 SW（同源）：首次访问时随游戏预加载自然写入缓存，
 // 之后每次访问图片/音频全部本地秒出，游玩不再依赖网络速度。
 // 缓存名固定，除非媒体文件更换才需要改（改后旧缓存会自动清掉）。
-const CACHE_NAME = 'chibi-media-v1';
+const CACHE_NAME = 'chibi-media-v2';
 
 // 同一 URL 的完整下载去重：预加载的完整请求和音频分段请求共享一次网络下载
 const inflight = new Map();
