@@ -1118,48 +1118,6 @@
     <div class="game-container" id="gameContainer">
         <div class="mask"></div>
 
-        <!-- ===== 品牌页 ===== -->
-        <div id="brandPage">
-            <div class="brand-header">
-                <div class="brand-logo-area">
-                    <img alt="沪声沪色" id="brandLogo" onerror="this.style.display='none'" />
-                </div>
-                <div class="brand-title-center">沪声沪色</div>
-            </div>
-            <div class="brand-body">
-                <div class="brand-intro" id="brandIntro"></div>
-                <div class="brand-questions">
-                    <div class="question-item" data-q="1">
-                        <span class="q-emoji">🎭</span>
-                        <span id="q1Label">什么是“互动有声剧”？</span>
-                    </div>
-                    <div class="question-item" data-q="2">
-                        <span class="q-emoji">❔</span>
-                        <span id="q2Label">为什么是互动有声剧？</span>
-                    </div>
-                    <div class="question-item" data-q="3">
-                        <span class="q-emoji">🌍</span>
-                        <span id="q3Label">我们能提供什么？</span>
-                    </div>
-                </div>
-            </div>
-            <div class="brand-footer-area">
-                <button class="brand-btn" id="brandEnterBtn">
-                    <span>进入体验</span>
-                    <span class="arrow-icon">→</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- ===== 问题详情浮窗 ===== -->
-        <div id="questionPopupOverlay">
-            <div class="question-popup-card">
-                <span class="close-icon" id="closeQuestionPopup">✕</span>
-                <h3 id="popupTitle"></h3>
-                <div id="popupContent"></div>
-            </div>
-        </div>
-
         <!-- ===== 前置表单 ===== -->
         <div id="preGameForm">
             <div class="form-card">
@@ -1413,18 +1371,6 @@
         const bgWind = document.getElementById('bgWind');
         let consentInfoLink = null;
 
-        const brandPage = document.getElementById('brandPage');
-        const brandEnterBtn = document.getElementById('brandEnterBtn');
-        const brandIntro = document.getElementById('brandIntro');
-        const q1Label = document.getElementById('q1Label');
-        const q2Label = document.getElementById('q2Label');
-        const q3Label = document.getElementById('q3Label');
-        const questionItems = document.querySelectorAll('.question-item');
-        const questionPopupOverlay = document.getElementById('questionPopupOverlay');
-        const popupTitle = document.getElementById('popupTitle');
-        const popupContent = document.getElementById('popupContent');
-        const closeQuestionPopup = document.getElementById('closeQuestionPopup');
-
         const formTitle = document.getElementById('formTitle');
         const ageLabel = document.getElementById('ageLabel');
         const ageUnder9 = document.getElementById('ageUnder9');
@@ -1481,18 +1427,8 @@
             reset: { zh: '重头再来',  },
         };
 
-        // ===== 更新品牌页文案 =====
-        function updateBrandPage() {
-            brandIntro.textContent = t(uiTexts.projectIntro);
-            q1Label.textContent = t(uiTexts.q1Label);
-            q2Label.textContent = t(uiTexts.q2Label);
-            q3Label.textContent = t(uiTexts.q3Label);
-            const btnText = brandEnterBtn.querySelector('span:first-child');
-            if (btnText) btnText.textContent = t(uiTexts.brandEnter);
-        }
-
+        // ===== 更新界面文案 =====
         function updateUITexts() {
-            updateBrandPage();
             formTitle.textContent = t(uiTexts.formTitle);
             ageLabel.textContent = t(uiTexts.ageLabel);
             ageUnder9.textContent = t(uiTexts.ageUnder9);
@@ -1518,87 +1454,6 @@
                 
             };
             alert(info[lang] || info.zh);
-        }
-
-        // ===== 显示问题浮窗 =====
-        let currentTriggerElement = null;
-
-        function showQuestionPopup(qIndex, triggerElement) {
-            let title, content;
-            if (qIndex === 1) {
-                title = t(uiTexts.q1Label);
-                content = t(uiTexts.q1Content);
-            } else if (qIndex === 2) {
-                title = t(uiTexts.q2Label);
-                content = t(uiTexts.q2Content);
-            } else if (qIndex === 3) {
-                title = t(uiTexts.q3Label);
-                content = t(uiTexts.q3Content);
-            } else return;
-
-            popupTitle.textContent = title;
-            popupContent.innerHTML = content.replace(/\n/g, '<br>');
-
-            questionPopupOverlay.classList.add('active');
-            const card = document.querySelector('.question-popup-card');
-            card.style.visibility = 'hidden';
-            card.style.display = 'block';
-            card.style.position = 'fixed';
-
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    const cardRect = card.getBoundingClientRect();
-                    const cardHeight = cardRect.height;
-                    const cardWidth = cardRect.width;
-
-                    if (triggerElement) {
-                        const rect = triggerElement.getBoundingClientRect();
-                        const viewportWidth = window.innerWidth;
-                        const viewportHeight = window.innerHeight;
-
-                        let top = rect.top - cardHeight - 16;
-                        let left = rect.left + rect.width / 2 - cardWidth / 2;
-
-                        if (top < 10) {
-                            top = rect.bottom + 16;
-                        }
-                        if (left < 10) left = 10;
-                        if (left + cardWidth > viewportWidth - 10) left = viewportWidth - cardWidth - 10;
-
-                        if (top + cardHeight > viewportHeight - 10) {
-                            top = (viewportHeight - cardHeight) / 2;
-                        }
-
-                        card.style.top = top + 'px';
-                        card.style.left = left + 'px';
-                        card.style.margin = '0';
-                        card.style.transform = 'none';
-                        card.style.maxHeight = Math.min(viewportHeight - top - 20, 70) + 'vh';
-                    } else {
-                        card.style.top = '50%';
-                        card.style.left = '50%';
-                        card.style.transform = 'translate(-50%, -50%)';
-                        card.style.margin = '0';
-                        card.style.maxHeight = '70vh';
-                    }
-
-                    card.style.visibility = 'visible';
-                });
-            });
-        }
-
-        function closeQuestionPopupFunc() {
-            questionPopupOverlay.classList.remove('active');
-            const card = document.querySelector('.question-popup-card');
-            if (card) {
-                card.style.visibility = '';
-                card.style.display = '';
-                card.style.top = '';
-                card.style.left = '';
-                card.style.transform = '';
-                card.style.margin = '';
-                card.style.maxHeight = '';
-            }
         }
 
         // ===== 知识卡片数据 =====
@@ -2778,9 +2633,7 @@
             document.getElementById('charLeft').style.display = 'none';
             document.getElementById('charRight').style.display = 'none';
 
-            brandPage.style.display = 'flex';
-            brandPage.classList.remove('fade-out');
-            preGameForm.classList.remove('active');
+            preGameForm.classList.add('active');
             consentCheck.checked = false;
             ageSelect.value = '9-12';
             updateUITexts();
@@ -2818,30 +2671,6 @@
 
         resetBtn.addEventListener('click', resetGame);
 
-        questionItems.forEach(item => {
-            item.addEventListener('click', function() {
-                showQuestionPopup(parseInt(this.dataset.q), this);
-            });
-        });
-
-        closeQuestionPopup.addEventListener('click', closeQuestionPopupFunc);
-        questionPopupOverlay.addEventListener('click', function(e) {
-            if (e.target === this) closeQuestionPopupFunc();
-        });
-
-        brandEnterBtn.addEventListener('click', function() {
-            currentLang = 'zh';
-            updateUITexts();
-            brandPage.classList.add('fade-out');
-            setTimeout(() => {
-                brandPage.style.display = 'none';
-                preGameForm.classList.add('active');
-                if (!audioInitialized) {
-                    bgWind.play().then(() => audioInitialized = true).catch(e => console.log('背景音播放失败:', e));
-                }
-            }, 800);
-        });
-
         enterGameBtn.addEventListener('click', function() {
             if (!consentCheck.checked) {
                 alert(t({ zh: '请先阅读并同意信息采集说明。',  }));
@@ -2849,6 +2678,9 @@
             }
             playerAge = ageSelect.value;
             preGameForm.classList.remove('active');
+            if (!audioInitialized) {
+                bgWind.play().then(() => audioInitialized = true).catch(e => console.log('背景音播放失败:', e));
+            }
             choiceHistory.push({
                 sceneId: 'pre_game',
                 interaction: 'age',
@@ -2868,16 +2700,12 @@
 
         // ===== 初始化 =====
         window.addEventListener('load', function() {
-            const brandLogo = document.getElementById('brandLogo');
-            if (brandLogo) brandLogo.src = asset('images/logo.jpg');
             bgWind.src = asset('sounds/wind.m4a');
             bgWind.load();
 
             currentLang = 'zh';
             updateUITexts();
-            brandPage.style.display = 'flex';
-            brandPage.classList.remove('fade-out');
-            preGameForm.classList.remove('active');
+            preGameForm.classList.add('active');
             const pending = localStorage.getItem('pendingGameData');
             if (pending) {
                 try {
